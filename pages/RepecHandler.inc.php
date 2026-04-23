@@ -23,7 +23,7 @@ class RepecHandler extends Handler
 			$request->getDispatcher()->handle404();
 		}
 
-		$settings = $this->getSettings($plugin, $context->getId());
+		$settings = $this->getSettings($plugin, $context, $request);
 		if (!$this->hasRequiredSettings($settings)) {
 			$request->getDispatcher()->handle404();
 		}
@@ -56,14 +56,47 @@ class RepecHandler extends Handler
 		$request->getDispatcher()->handle404();
 	}
 
-	private function getSettings($plugin, $contextId)
+	private function getSettings($plugin, $context, $request)
 	{
 		$settings = array();
 		foreach (RepecSettingsForm::$settings as $settingName => $settingType) {
-			$settings[$settingName] = trim((string) $plugin->getSetting($contextId, $settingName));
+			$settings[$settingName] = trim((string) $plugin->getSetting($context->getId(), $settingName));
 		}
 		$settings['archiveCode'] = strtolower($settings['archiveCode']);
 		$settings['seriesCode'] = strtolower($settings['seriesCode']);
+		if (empty($settings['archiveName'])) {
+			$settings['archiveName'] = 'RePEc archive for ' . $context->getLocalizedName();
+		}
+		if (empty($settings['archiveDescription'])) {
+			$settings['archiveDescription'] = 'Articles published by ' . $context->getLocalizedName();
+		}
+		if (empty($settings['seriesName'])) {
+			$settings['seriesName'] = $context->getLocalizedName();
+		}
+		if (empty($settings['providerName'])) {
+			$settings['providerName'] = trim((string) $context->getData('publisherInstitution'));
+		}
+		if (empty($settings['providerName'])) {
+			$settings['providerName'] = $context->getLocalizedName();
+		}
+		if (empty($settings['providerHomepage'])) {
+			$settings['providerHomepage'] = $request->url($context->getPath(), null, null, null, null, null, true);
+		}
+		if (empty($settings['maintainerName'])) {
+			$settings['maintainerName'] = trim((string) $context->getData('supportName'));
+		}
+		if (empty($settings['maintainerName'])) {
+			$settings['maintainerName'] = trim((string) $context->getData('contactName'));
+		}
+		if (empty($settings['maintainerName'])) {
+			$settings['maintainerName'] = $context->getLocalizedName();
+		}
+		if (empty($settings['maintainerEmail'])) {
+			$settings['maintainerEmail'] = trim((string) $context->getData('supportEmail'));
+		}
+		if (empty($settings['maintainerEmail'])) {
+			$settings['maintainerEmail'] = trim((string) $context->getData('contactEmail'));
+		}
 		return $settings;
 	}
 
@@ -101,7 +134,7 @@ class RepecHandler extends Handler
 	private function getSeriesData($request, $context, $settings)
 	{
 		if (empty($settings['providerHomepage'])) {
-			$settings['providerHomepage'] = $request->url($context->getPath(), 'index', null, null, null, null, true);
+			$settings['providerHomepage'] = $request->url($context->getPath(), null, null, null, null, null, true);
 		}
 		return $settings;
 	}
@@ -227,7 +260,7 @@ class RepecHandler extends Handler
 	{
 		header('Content-Type: text/plain; charset=UTF-8');
 		header('Cache-Control: public, max-age=3600');
-		echo "\xEF\xBB\xBF" . $contents;
+		echo $contents;
 		exit();
 	}
 

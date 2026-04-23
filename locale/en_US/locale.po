@@ -18,7 +18,7 @@ msgid "plugins.generic.repec.description"
 msgstr "Publishes journal metadata in ReDIF format for RePEc indexing."
 
 msgid "plugins.generic.repec.settings.description"
-msgstr "Configure the journal RePEc archive data. The plugin dynamically publishes the files required by RePEc for published articles."
+msgstr "Configure the minimum RePEc archive data for the journal. The plugin dynamically publishes the files required by RePEc for published articles and infers the remaining fields from the journal settings in OJS."
 
 msgid "plugins.generic.repec.settings.publicUrl"
 msgstr "Public URL:"
@@ -32,6 +32,9 @@ msgstr "Series or journal"
 msgid "plugins.generic.repec.settings.maintainer"
 msgstr "Maintainer"
 
+msgid "plugins.generic.repec.settings.requiredData"
+msgstr "Required data"
+
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "RePEc archive code"
 
@@ -43,6 +46,9 @@ msgstr "Description"
 
 msgid "plugins.generic.repec.settings.seriesCode"
 msgstr "Series code"
+
+msgid "plugins.generic.repec.settings.seriesCodeDescription"
+msgstr "Suggested automatically from the journal data. You may change it before saving. After it is published in RePEc, avoid changing this code."
 
 msgid "plugins.generic.repec.settings.seriesName"
 msgstr "Series or journal name"
@@ -61,6 +67,9 @@ msgstr "Maintainer name"
 
 msgid "plugins.generic.repec.settings.maintainerEmail"
 msgstr "Maintainer email"
+
+msgid "plugins.generic.repec.settings.maintainerEmailDescription"
+msgstr "Optional. If left empty, the plugin will use the technical support email configured for the journal in OJS; if that is also empty, it will use the journal's main contact email."
 
 msgid "plugins.generic.repec.settings.archiveCodeRequired"
 msgstr "Enter the RePEc archive code."
@@ -89,5 +98,5 @@ msgstr "Enter the provider homepage."
 msgid "plugins.generic.repec.settings.maintainerNameRequired"
 msgstr "Enter the maintainer name."
 
-msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Enter a valid maintainer email."

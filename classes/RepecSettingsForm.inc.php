@@ -47,12 +47,7 @@ class RepecSettingsForm extends Form
 		$this->addCheck(new FormValidatorCustom($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeInvalid', array($this, 'validateArchiveCode')));
 		$this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
 		$this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
-		$this->addCheck(new FormValidator($this, 'archiveName', 'required', 'plugins.generic.repec.settings.archiveNameRequired'));
-		$this->addCheck(new FormValidator($this, 'seriesName', 'required', 'plugins.generic.repec.settings.seriesNameRequired'));
-		$this->addCheck(new FormValidator($this, 'providerName', 'required', 'plugins.generic.repec.settings.providerNameRequired'));
-		$this->addCheck(new FormValidator($this, 'providerHomepage', 'required', 'plugins.generic.repec.settings.providerHomepageRequired'));
-		$this->addCheck(new FormValidator($this, 'maintainerName', 'required', 'plugins.generic.repec.settings.maintainerNameRequired'));
-		$this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', 'required', 'plugins.generic.repec.settings.maintainerEmailRequired'));
+		$this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
 	}
 
 	public function initData()
@@ -60,6 +55,9 @@ class RepecSettingsForm extends Form
 		$this->_data = array();
 		foreach (self::$settings as $settingName => $settingType) {
 			$this->_data[$settingName] = $this->plugin->getSetting($this->contextId, $settingName);
+		}
+		if (empty($this->_data['seriesCode'])) {
+			$this->_data['seriesCode'] = $this->generateSeriesCode();
 		}
 	}
 
@@ -97,6 +95,54 @@ class RepecSettingsForm extends Form
 	public function validateSeriesCode($seriesCode)
 	{
 		return (bool) preg_match('/^[a-z0-9]{6}$/', strtolower(trim((string) $seriesCode)));
+	}
+
+	private function generateSeriesCode()
+	{
+		$context = Application::get()->getRequest()->getContext();
+		if (!$context) {
+			return '';
+		}
+
+		$candidates = array(
+			$context->getPath(),
+			$context->getData('onlineIssn'),
+			$context->getData('printIssn'),
+			$context->getLocalizedName(),
+		);
+
+		foreach ($candidates as $candidate) {
+			$code = $this->normalizeSeriesCodeCandidate($candidate);
+			if ($code !== '') {
+				return $this->fitSeriesCodeLength($code);
+			}
+		}
+
+		return '';
+	}
+
+	private function normalizeSeriesCodeCandidate($candidate)
+	{
+		$candidate = trim((string) $candidate);
+		if ($candidate === '') {
+			return '';
+		}
+		if (function_exists('iconv')) {
+			$converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $candidate);
+			if ($converted !== false) {
+				$candidate = $converted;
+			}
+		}
+		$candidate = strtolower($candidate);
+		return preg_replace('/[^a-z0-9]/', '', $candidate);
+	}
+
+	private function fitSeriesCodeLength($code)
+	{
+		if (strlen($code) >= 6) {
+			return substr($code, 0, 6);
+		}
+		return str_pad($code, 6, '0');
 	}
 
 	private function getRepecBaseUrl($request)

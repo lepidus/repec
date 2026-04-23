@@ -18,7 +18,7 @@ msgid "plugins.generic.repec.description"
 msgstr "Publica metadados da revista em formato ReDIF para indexação no RePEc."
 
 msgid "plugins.generic.repec.settings.description"
-msgstr "Configure os dados do arquivo RePEc da revista. O plugin publica dinamicamente os arquivos exigidos pelo RePEc para artigos publicados."
+msgstr "Configure os dados mínimos do arquivo RePEc da revista. O plugin publica dinamicamente os arquivos exigidos pelo RePEc para artigos publicados e infere os demais campos a partir das configurações da revista no OJS."
 
 msgid "plugins.generic.repec.settings.publicUrl"
 msgstr "URL pública:"
@@ -32,6 +32,9 @@ msgstr "Série ou revista"
 msgid "plugins.generic.repec.settings.maintainer"
 msgstr "Mantenedor"
 
+msgid "plugins.generic.repec.settings.requiredData"
+msgstr "Dados obrigatórios"
+
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "Código do arquivo RePEc"
 
@@ -43,6 +46,9 @@ msgstr "Descrição"
 
 msgid "plugins.generic.repec.settings.seriesCode"
 msgstr "Código da série"
+
+msgid "plugins.generic.repec.settings.seriesCodeDescription"
+msgstr "Sugestão gerada automaticamente a partir dos dados da revista. Você pode alterar antes de salvar. Depois de publicado no RePEc, evite mudar esse código."
 
 msgid "plugins.generic.repec.settings.seriesName"
 msgstr "Nome da série ou revista"
@@ -61,6 +67,9 @@ msgstr "Nome do mantenedor"
 
 msgid "plugins.generic.repec.settings.maintainerEmail"
 msgstr "E-mail do mantenedor"
+
+msgid "plugins.generic.repec.settings.maintainerEmailDescription"
+msgstr "Opcional. Se ficar vazio, o plugin usará o e-mail de suporte técnico configurado na revista no OJS; se ele também estiver vazio, usará o e-mail de contato principal da revista."
 
 msgid "plugins.generic.repec.settings.archiveCodeRequired"
 msgstr "Informe o código do arquivo RePEc."
@@ -89,5 +98,5 @@ msgstr "Informe a página inicial do provedor."
 msgid "plugins.generic.repec.settings.maintainerNameRequired"
 msgstr "Informe o nome do mantenedor."
 
-msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Informe um e-mail válido para o mantenedor."

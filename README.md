@@ -8,6 +8,8 @@ Plugin genérico para OJS 3.3 que publica metadados da revista em formato ReDIF 
 2. Abra as configurações do plugin e informe o código RePEc do arquivo, o código da série, dados do provedor e mantenedor.
 3. Acesse a URL pública indicada na configuração do plugin.
 
+O e-mail do mantenedor é opcional no formulário. Quando não for preenchido, o plugin usa o e-mail de suporte técnico configurado na revista no OJS e, se ele também estiver vazio, usa o e-mail de contato principal da revista.
+
 O plugin publica dinamicamente:
 
 - `/{journal}/repec/{aaa}/`
