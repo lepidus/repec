@@ -1,0 +1,93 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: repec\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-23T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-04-23T00:00:00+00:00\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "plugins.generic.repec.displayName"
+msgstr "RePEc/ReDIF"
+
+msgid "plugins.generic.repec.description"
+msgstr "Publica metadados da revista em formato ReDIF para indexação no RePEc."
+
+msgid "plugins.generic.repec.settings.description"
+msgstr "Configure os dados do arquivo RePEc da revista. O plugin publica dinamicamente os arquivos exigidos pelo RePEc para artigos publicados."
+
+msgid "plugins.generic.repec.settings.publicUrl"
+msgstr "URL pública:"
+
+msgid "plugins.generic.repec.settings.archive"
+msgstr "Arquivo RePEc"
+
+msgid "plugins.generic.repec.settings.series"
+msgstr "Série ou revista"
+
+msgid "plugins.generic.repec.settings.maintainer"
+msgstr "Mantenedor"
+
+msgid "plugins.generic.repec.settings.archiveCode"
+msgstr "Código do arquivo RePEc"
+
+msgid "plugins.generic.repec.settings.archiveName"
+msgstr "Nome do arquivo"
+
+msgid "plugins.generic.repec.settings.archiveDescription"
+msgstr "Descrição"
+
+msgid "plugins.generic.repec.settings.seriesCode"
+msgstr "Código da série"
+
+msgid "plugins.generic.repec.settings.seriesName"
+msgstr "Nome da série ou revista"
+
+msgid "plugins.generic.repec.settings.providerName"
+msgstr "Nome do provedor"
+
+msgid "plugins.generic.repec.settings.providerHomepage"
+msgstr "Página inicial do provedor"
+
+msgid "plugins.generic.repec.settings.providerInstitution"
+msgstr "Handle RePEc da instituição"
+
+msgid "plugins.generic.repec.settings.maintainerName"
+msgstr "Nome do mantenedor"
+
+msgid "plugins.generic.repec.settings.maintainerEmail"
+msgstr "E-mail do mantenedor"
+
+msgid "plugins.generic.repec.settings.archiveCodeRequired"
+msgstr "Informe o código do arquivo RePEc."
+
+msgid "plugins.generic.repec.settings.archiveCodeInvalid"
+msgstr "O código do arquivo RePEc deve ter exatamente 3 letras minúsculas."
+
+msgid "plugins.generic.repec.settings.seriesCodeRequired"
+msgstr "Informe o código da série."
+
+msgid "plugins.generic.repec.settings.seriesCodeInvalid"
+msgstr "O código da série deve ter exatamente 6 letras minúsculas ou dígitos."
+
+msgid "plugins.generic.repec.settings.archiveNameRequired"
+msgstr "Informe o nome do arquivo."
+
+msgid "plugins.generic.repec.settings.seriesNameRequired"
+msgstr "Informe o nome da série ou revista."
+
+msgid "plugins.generic.repec.settings.providerNameRequired"
+msgstr "Informe o nome do provedor."
+
+msgid "plugins.generic.repec.settings.providerHomepageRequired"
+msgstr "Informe a página inicial do provedor."
+
+msgid "plugins.generic.repec.settings.maintainerNameRequired"
+msgstr "Informe o nome do mantenedor."
+
+msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgstr "Informe um e-mail válido para o mantenedor."

@@ -1,0 +1,93 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: repec\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-23T00:00:00+00:00\n"
+"PO-Revision-Date: 2026-04-23T00:00:00+00:00\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "plugins.generic.repec.displayName"
+msgstr "RePEc/ReDIF"
+
+msgid "plugins.generic.repec.description"
+msgstr "Publishes journal metadata in ReDIF format for RePEc indexing."
+
+msgid "plugins.generic.repec.settings.description"
+msgstr "Configure the journal RePEc archive data. The plugin dynamically publishes the files required by RePEc for published articles."
+
+msgid "plugins.generic.repec.settings.publicUrl"
+msgstr "Public URL:"
+
+msgid "plugins.generic.repec.settings.archive"
+msgstr "RePEc archive"
+
+msgid "plugins.generic.repec.settings.series"
+msgstr "Series or journal"
+
+msgid "plugins.generic.repec.settings.maintainer"
+msgstr "Maintainer"
+
+msgid "plugins.generic.repec.settings.archiveCode"
+msgstr "RePEc archive code"
+
+msgid "plugins.generic.repec.settings.archiveName"
+msgstr "Archive name"
+
+msgid "plugins.generic.repec.settings.archiveDescription"
+msgstr "Description"
+
+msgid "plugins.generic.repec.settings.seriesCode"
+msgstr "Series code"
+
+msgid "plugins.generic.repec.settings.seriesName"
+msgstr "Series or journal name"
+
+msgid "plugins.generic.repec.settings.providerName"
+msgstr "Provider name"
+
+msgid "plugins.generic.repec.settings.providerHomepage"
+msgstr "Provider homepage"
+
+msgid "plugins.generic.repec.settings.providerInstitution"
+msgstr "Institution RePEc handle"
+
+msgid "plugins.generic.repec.settings.maintainerName"
+msgstr "Maintainer name"
+
+msgid "plugins.generic.repec.settings.maintainerEmail"
+msgstr "Maintainer email"
+
+msgid "plugins.generic.repec.settings.archiveCodeRequired"
+msgstr "Enter the RePEc archive code."
+
+msgid "plugins.generic.repec.settings.archiveCodeInvalid"
+msgstr "The RePEc archive code must have exactly 3 lowercase letters."
+
+msgid "plugins.generic.repec.settings.seriesCodeRequired"
+msgstr "Enter the series code."
+
+msgid "plugins.generic.repec.settings.seriesCodeInvalid"
+msgstr "The series code must have exactly 6 lowercase letters or digits."
+
+msgid "plugins.generic.repec.settings.archiveNameRequired"
+msgstr "Enter the archive name."
+
+msgid "plugins.generic.repec.settings.seriesNameRequired"
+msgstr "Enter the series or journal name."
+
+msgid "plugins.generic.repec.settings.providerNameRequired"
+msgstr "Enter the provider name."
+
+msgid "plugins.generic.repec.settings.providerHomepageRequired"
+msgstr "Enter the provider homepage."
+
+msgid "plugins.generic.repec.settings.maintainerNameRequired"
+msgstr "Enter the maintainer name."
+
+msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgstr "Enter a valid maintainer email."
