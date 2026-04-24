@@ -36,7 +36,7 @@ msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Required data"
 
 msgid "plugins.generic.repec.settings.archiveCode"
-msgstr "RePEc archive code"
+msgstr "3-letter code provided by RePEc"
 
 msgid "plugins.generic.repec.settings.archiveName"
 msgstr "Archive name"
@@ -45,7 +45,7 @@ msgid "plugins.generic.repec.settings.archiveDescription"
 msgstr "Description"
 
 msgid "plugins.generic.repec.settings.seriesCode"
-msgstr "Series code"
+msgstr "6-character code for the series (journal)"
 
 msgid "plugins.generic.repec.settings.seriesCodeDescription"
 msgstr "Suggested automatically from the journal data. You may change it before saving. After it is published in RePEc, avoid changing this code."
@@ -70,6 +70,9 @@ msgstr "Maintainer email"
 
 msgid "plugins.generic.repec.settings.maintainerEmailDescription"
 msgstr "Optional. If left empty, the plugin will use the technical support email configured for the journal in OJS; if that is also empty, it will use the journal's main contact email."
+
+msgid "plugins.generic.repec.settings.supportEmailInUse"
+msgstr "Because the maintainer email is empty, the technical support email configured in OJS will be used: {$email}."
 
 msgid "plugins.generic.repec.settings.archiveCodeRequired"
 msgstr "Enter the RePEc archive code."

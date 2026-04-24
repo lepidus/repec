@@ -71,6 +71,7 @@ class RepecSettingsForm extends Form
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign('pluginName', $this->plugin->getName());
 		$templateMgr->assign('repecBaseUrl', $this->getRepecBaseUrl($request));
+		$templateMgr->assign('supportEmailInUse', $this->getSupportEmailInUse($request));
 		return parent::fetch($request, $template, $display);
 	}
 
@@ -154,5 +155,19 @@ class RepecSettingsForm extends Form
 		$context = $request->getContext();
 		$contextPath = $context ? $context->getPath() : null;
 		return $request->getDispatcher()->url($request, ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
+	}
+
+	private function getSupportEmailInUse($request)
+	{
+		if (trim((string) $this->getData('maintainerEmail')) !== '') {
+			return '';
+		}
+
+		$context = $request->getContext();
+		if (!$context) {
+			return '';
+		}
+
+		return trim((string) $context->getData('supportEmail'));
 	}
 }
