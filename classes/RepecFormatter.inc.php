@@ -33,6 +33,7 @@ class RepecFormatter
 			array('Provider-Name', $data['providerName']),
 			array('Provider-Homepage', $data['providerHomepage']),
 			array('Provider-Institution', $data['providerInstitution']),
+			array('ISSN', $data['issn']),
 			array('Maintainer-Name', $data['maintainerName']),
 			array('Maintainer-Email', $data['maintainerEmail']),
 			array('Type', 'ReDIF-Article'),

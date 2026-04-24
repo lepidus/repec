@@ -46,11 +46,14 @@ class RepecHandler extends Handler
 		}
 
 		if (count($path) === 2 && $path[1] === $settings['seriesCode']) {
-			$this->sendDirectoryIndex($request, $settings, 'series');
+			$this->sendDirectoryIndex($request, $settings, 'series', $this->getIssueFileNames($context));
 		}
 
-		if (count($path) === 3 && $path[1] === $settings['seriesCode'] && $path[2] === 'articles.rdf') {
-			$this->sendRedif($this->getFormatter()->formatArticles($this->getArticlesData($request, $context, $settings)));
+		if (count($path) === 3 && $path[1] === $settings['seriesCode']) {
+			$issueFileNames = $this->getIssueFileNames($context);
+			if (isset($issueFileNames[$path[2]])) {
+				$this->sendRedif($this->getFormatter()->formatArticles($this->getArticlesData($request, $context, $settings, $issueFileNames[$path[2]])));
+			}
 		}
 
 		$request->getDispatcher()->handle404();
@@ -81,6 +84,10 @@ class RepecHandler extends Handler
 		}
 		if (empty($settings['providerHomepage'])) {
 			$settings['providerHomepage'] = $request->url($context->getPath(), null, null, null, null, null, true);
+		}
+		$settings['issn'] = trim((string) $context->getData('onlineIssn'));
+		if (empty($settings['issn'])) {
+			$settings['issn'] = trim((string) $context->getData('printIssn'));
 		}
 		if (empty($settings['maintainerName'])) {
 			$settings['maintainerName'] = trim((string) $context->getData('supportName'));
@@ -139,15 +146,16 @@ class RepecHandler extends Handler
 		return $settings;
 	}
 
-	private function getArticlesData($request, $context, $settings)
+	private function getArticlesData($request, $context, $settings, $issue)
 	{
 		import('classes.submission.SubmissionDAO');
 
 		$articles = array();
 		$submissions = Services::get('submission')->getMany(array(
 			'contextId' => $context->getId(),
+			'issueIds' => $issue->getId(),
 			'status' => STATUS_PUBLISHED,
-			'orderBy' => ORDERBY_DATE_PUBLISHED,
+			'orderBy' => 'seq',
 			'orderDirection' => 'ASC',
 		));
 
@@ -156,7 +164,7 @@ class RepecHandler extends Handler
 			if (!$publication) {
 				continue;
 			}
-			$article = $this->getArticleData($request, $context, $settings, $submission, $publication);
+			$article = $this->getArticleData($request, $context, $settings, $submission, $publication, $issue);
 			if (!empty($article['authors']) && !empty($article['title'])) {
 				$articles[] = $article;
 			}
@@ -165,19 +173,13 @@ class RepecHandler extends Handler
 		return $articles;
 	}
 
-	private function getArticleData($request, $context, $settings, $submission, $publication)
+	private function getArticleData($request, $context, $settings, $submission, $publication, $issue = null)
 	{
-		$issue = $this->getIssue($context, $publication, $submission);
-		$galley = $this->getPreferredGalley((array) $publication->getData('galleys'));
-		$fileUrl = '';
-		$fileFormat = '';
-		if ($galley) {
-			$fileUrl = $galley->getRemoteURL();
-			if (!$fileUrl) {
-				$fileUrl = $request->url($context->getPath(), 'article', 'download', array($submission->getBestId(), $galley->getBestGalleyId()), null, null, true);
-			}
-			$fileFormat = $galley->getFileType() ?: 'application/octet-stream';
+		if (!$issue) {
+			$issue = $this->getIssue($context, $publication, $submission);
 		}
+		$fileUrl = $request->url($context->getPath(), 'article', 'view', array($submission->getBestId()), null, null, true);
+		$fileFormat = 'text/html';
 
 		$datePublished = $publication->getData('datePublished');
 		$year = $datePublished ? date('Y', strtotime($datePublished)) : '';
@@ -237,18 +239,68 @@ class RepecHandler extends Handler
 		return $issueDao->getBySubmissionId($submission->getId(), $context->getId());
 	}
 
-	private function getPreferredGalley($galleys)
+	private function getIssueFileNames($context)
 	{
-		$firstGalley = null;
-		foreach ($galleys as $galley) {
-			if (!$firstGalley) {
-				$firstGalley = $galley;
+		$issueDao = DAORegistry::getDAO('IssueDAO');
+		$publishedIssues = $issueDao->getPublishedIssues($context->getId());
+		$issues = array();
+		$counts = array();
+		while ($issue = $publishedIssues->next()) {
+			$baseName = $this->getIssueFileBaseName($issue);
+			$issues[] = array($baseName, $issue);
+			if (!isset($counts[$baseName])) {
+				$counts[$baseName] = 0;
 			}
-			if ($galley->getFileType() === 'application/pdf') {
-				return $galley;
+			$counts[$baseName]++;
+		}
+
+		$issueFileNames = array();
+		foreach ($issues as $issueData) {
+			list($baseName, $issue) = $issueData;
+			if ($counts[$baseName] > 1) {
+				$baseName .= 'id' . $issue->getId();
+			}
+			$issueFileNames[$baseName . '.rdf'] = $issue;
+		}
+		return $issueFileNames;
+	}
+
+	private function getIssueFileBaseName($issue)
+	{
+		$parts = array();
+		$volume = $this->cleanFileNamePart($issue->getVolume());
+		$number = $this->cleanFileNamePart($issue->getNumber());
+		$year = $this->cleanFileNamePart($issue->getYear());
+
+		if ($volume !== '') {
+			$parts[] = 'v' . $volume;
+		}
+		if ($number !== '') {
+			$parts[] = 'i' . $number;
+		}
+		if ($year !== '') {
+			$parts[] = 'y' . $year;
+		}
+		if (empty($parts)) {
+			$parts[] = 'issue' . $issue->getId();
+		}
+
+		return implode('', $parts);
+	}
+
+	private function cleanFileNamePart($value)
+	{
+		$value = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+		$value = function_exists('mb_strtolower') ? mb_strtolower($value, 'UTF-8') : strtolower($value);
+		$value = trim($value);
+		if (function_exists('iconv')) {
+			$converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+			if ($converted !== false) {
+				$value = $converted;
 			}
 		}
-		return $firstGalley;
+		$value = preg_replace('/[^a-z0-9]+/', '', strtolower($value));
+		return trim($value);
 	}
 
 	private function getFormatter()
@@ -264,7 +316,7 @@ class RepecHandler extends Handler
 		exit();
 	}
 
-	private function sendDirectoryIndex($request, $settings, $level)
+	private function sendDirectoryIndex($request, $settings, $level, $issueFileNames = array())
 	{
 		header('Content-Type: text/html; charset=UTF-8');
 		$archiveCode = htmlspecialchars($settings['archiveCode'], ENT_QUOTES, 'UTF-8');
@@ -272,7 +324,6 @@ class RepecHandler extends Handler
 		$archiveTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'arch.rdf'), null, null, true);
 		$seriesTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'seri.rdf'), null, null, true);
 		$seriesUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['seriesCode']), null, null, true);
-		$articlesUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['seriesCode'], 'articles.rdf'), null, null, true);
 
 		echo '<!doctype html><html><head><meta charset="utf-8"><title>RePEc ' . $archiveCode . '</title></head><body>';
 		echo '<h1>RePEc ' . $archiveCode . '</h1><ul>';
@@ -281,7 +332,14 @@ class RepecHandler extends Handler
 			echo '<li><a href="' . htmlspecialchars($seriesTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'seri.rdf</a></li>';
 			echo '<li><a href="' . htmlspecialchars($seriesUrl, ENT_QUOTES, 'UTF-8') . '">' . $seriesCode . '/</a></li>';
 		} else {
-			echo '<li><a href="' . htmlspecialchars($articlesUrl, ENT_QUOTES, 'UTF-8') . '">articles.rdf</a></li>';
+			foreach ($issueFileNames as $fileName => $issue) {
+				$issueUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['seriesCode'], $fileName), null, null, true);
+				$issueLabel = $issue->getIssueIdentification();
+				if (empty($issueLabel)) {
+					$issueLabel = $fileName;
+				}
+				echo '<li><a href="' . htmlspecialchars($issueUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8') . '</a> - ' . htmlspecialchars($issueLabel, ENT_QUOTES, 'UTF-8') . '</li>';
+			}
 		}
 		echo '</ul></body></html>';
 		exit();

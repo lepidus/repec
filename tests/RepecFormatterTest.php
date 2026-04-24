@@ -39,8 +39,8 @@ class RepecFormatterTest extends PKPTestCase
 			'year' => '2026',
 			'month' => 'April',
 			'doi' => '10.1234/example',
-			'fileUrl' => 'https://example.org/article.pdf',
-			'fileFormat' => 'application/pdf',
+			'fileUrl' => 'https://example.org/article/view/10',
+			'fileFormat' => 'text/html',
 			'handle' => 'RePEc:abc:journl:a:10',
 		)));
 
@@ -48,6 +48,7 @@ class RepecFormatterTest extends PKPTestCase
 		$this->assertStringContainsString("Author-Name: Bruno Souza\n", $output);
 		$this->assertStringContainsString("Abstract: Resumo com HTML.\n", $output);
 		$this->assertStringContainsString("Keywords: economia, região\n", $output);
+		$this->assertStringContainsString("File-URL: https://example.org/article/view/10\nFile-Format: text/html\n", $output);
 		$this->assertStringContainsString("Handle: RePEc:abc:journl:a:10\n", $output);
 	}
 
@@ -62,11 +63,13 @@ class RepecFormatterTest extends PKPTestCase
 			'providerName' => 'Provider',
 			'providerHomepage' => 'https://example.org',
 			'providerInstitution' => '',
+			'issn' => '1234-5678',
 			'maintainerName' => 'Maintainer',
 			'maintainerEmail' => 'repec@example.org',
 		));
 
 		$this->assertStringContainsString("Name: Journal\n with subtitle\n", $output);
+		$this->assertStringContainsString("ISSN: 1234-5678\n", $output);
 		$this->assertStringNotContainsString("Description:", $output);
 	}
 }
