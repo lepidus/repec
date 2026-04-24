@@ -105,8 +105,8 @@ class RepecPlugin extends GenericPlugin
 
 	public function setupRepecHandler($hookName, $params)
 	{
-		$page =& $params[0];
-		$op =& $params[1];
+		$page = &$params[0];
+		$op = &$params[1];
 
 		if ($page !== 'repec') {
 			return false;
