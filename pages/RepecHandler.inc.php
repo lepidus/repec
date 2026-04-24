@@ -160,7 +160,7 @@ class RepecHandler extends Handler
 		));
 
 		foreach ($submissions as $submission) {
-			$publication = $submission->getCurrentPublication();
+			$publication = $this->getLatestPublishedPublication($submission);
 			if (!$publication) {
 				continue;
 			}
@@ -171,6 +171,20 @@ class RepecHandler extends Handler
 		}
 
 		return $articles;
+	}
+
+	private function getLatestPublishedPublication($submission)
+	{
+		$latest = null;
+		foreach ((array) $submission->getData('publications') as $publication) {
+			if ($publication->getData('status') != STATUS_PUBLISHED) {
+				continue;
+			}
+			if (!$latest || $publication->getData('version') > $latest->getData('version')) {
+				$latest = $publication;
+			}
+		}
+		return $latest;
 	}
 
 	private function getArticleData($request, $context, $settings, $submission, $publication, $issue = null)
