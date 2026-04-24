@@ -24,13 +24,6 @@ class RepecSettingsForm extends Form
 	public static $settings = array(
 		'archiveCode' => 'string',
 		'seriesCode' => 'string',
-		'archiveName' => 'string',
-		'archiveDescription' => 'string',
-		'seriesName' => 'string',
-		'providerName' => 'string',
-		'providerHomepage' => 'string',
-		'providerInstitution' => 'string',
-		'maintainerName' => 'string',
 		'maintainerEmail' => 'string',
 	);
 
