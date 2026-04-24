@@ -151,6 +151,8 @@ class RepecSettingsForm extends Form
 		if (!$archiveCode || !$this->validateArchiveCode($archiveCode)) {
 			return '';
 		}
-		return $request->url(null, 'repec', $archiveCode);
+		$context = $request->getContext();
+		$contextPath = $context ? $context->getPath() : null;
+		return $request->getDispatcher()->url($request, ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
 	}
 }
