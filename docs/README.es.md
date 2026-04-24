@@ -1,0 +1,29 @@
+# RePEc/ReDIF
+
+Plugin genérico para OJS 3.3 que publica metadatos de la revista en formato ReDIF para su indexación en RePEc.
+
+Traducciones:
+
+- [English](../README.md)
+- [Español](README.es.md)
+- [Português do Brasil](README.pt_BR.md)
+
+## Uso
+
+1. Active el plugin en una revista.
+2. Abra la configuración del plugin e informe el código RePEc del archivo, el código de la serie y el correo electrónico opcional del mantenedor.
+3. Acceda a la URL pública indicada en la configuración del plugin.
+
+El correo electrónico del mantenedor es opcional. Cuando no se completa, el plugin usa el correo electrónico de soporte técnico configurado para la revista en OJS. Si ese correo también está vacío, usa el correo electrónico principal de contacto de la revista.
+
+El plugin publica dinámicamente:
+
+- `/{journal}/repec/{aaa}/`
+- `/{journal}/repec/{aaa}/{aaa}arch.rdf`
+- `/{journal}/repec/{aaa}/{aaa}seri.rdf`
+- `/{journal}/repec/{aaa}/{seriesCode}/`
+- `/{journal}/repec/{aaa}/{seriesCode}/{issue}.rdf`
+
+El plugin publica un archivo RDF por cada número publicado. El nombre del archivo se genera a partir de la identificación del número configurada en OJS, por ejemplo `v42i2y2022.rdf` para volumen 42, número 2, año 2022.
+
+La exportación v1 se limita a los artículos publicados de la revista actual, como `ReDIF-Article 1.0`. El campo `File-URL` apunta a la página pública del artículo en OJS.
