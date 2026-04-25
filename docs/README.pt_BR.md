@@ -19,11 +19,11 @@ O e-mail do mantenedor é opcional no formulário. Quando não for preenchido, o
 O plugin publica dinamicamente:
 
 - `/{journal}/repec/{aaa}/`
-- `/{journal}/repec/{aaa}/{aaa}arch.rdf`
-- `/{journal}/repec/{aaa}/{aaa}seri.rdf`
+- `/{journal}/repec/{aaa}/{aaa}arch.redif`
+- `/{journal}/repec/{aaa}/{aaa}seri.redif`
 - `/{journal}/repec/{aaa}/{seriesCode}/`
-- `/{journal}/repec/{aaa}/{seriesCode}/{issue}.rdf`
+- `/{journal}/repec/{aaa}/{seriesCode}/{issue}.redif`
 
-O plugin publica um arquivo RDF por edição publicada. O nome do arquivo é gerado a partir da identificação da edição configurada no OJS, por exemplo `v42i2y2022.rdf` para volume 42, edição 2, ano 2022.
+O plugin publica um arquivo ReDIF por edição publicada. O nome do arquivo é gerado a partir da identificação da edição configurada no OJS, por exemplo `v42i2y2022.redif` para volume 42, edição 2, ano 2022.
 
 O conteúdo exportado no v1 é limitado a artigos publicados da revista atual, como `ReDIF-Article 1.0`. O campo `File-URL` aponta para a página pública do artigo no OJS.

@@ -19,11 +19,11 @@ The maintainer email is optional. When it is not filled in, the plugin uses the 
 The plugin publishes these URLs dynamically:
 
 - `/{journal}/repec/{aaa}/`
-- `/{journal}/repec/{aaa}/{aaa}arch.rdf`
-- `/{journal}/repec/{aaa}/{aaa}seri.rdf`
+- `/{journal}/repec/{aaa}/{aaa}arch.redif`
+- `/{journal}/repec/{aaa}/{aaa}seri.redif`
 - `/{journal}/repec/{aaa}/{seriesCode}/`
-- `/{journal}/repec/{aaa}/{seriesCode}/{issue}.rdf`
+- `/{journal}/repec/{aaa}/{seriesCode}/{issue}.redif`
 
-The plugin publishes one RDF file for each published issue. The file name is generated from the issue identification configured in OJS, for example `v42i2y2022.rdf` for volume 42, issue 2, year 2022.
+The plugin publishes one ReDIF file for each published issue. The file name is generated from the issue identification configured in OJS, for example `v42i2y2022.redif` for volume 42, issue 2, year 2022.
 
 The v1 export is limited to published articles in the current journal, as `ReDIF-Article 1.0`. The `File-URL` field points to the public article landing page in OJS.

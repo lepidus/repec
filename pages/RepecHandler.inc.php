@@ -37,11 +37,11 @@ class RepecHandler extends Handler
             $this->sendDirectoryIndex($request, $settings, 'archive');
         }
 
-        if (count($path) === 2 && $path[1] === $settings['archiveCode'] . 'arch.rdf') {
+        if (count($path) === 2 && $path[1] === $settings['archiveCode'] . 'arch.redif') {
             $this->sendRedif($this->getFormatter()->formatArchive($this->getArchiveData($request, $context, $settings)));
         }
 
-        if (count($path) === 2 && $path[1] === $settings['archiveCode'] . 'seri.rdf') {
+        if (count($path) === 2 && $path[1] === $settings['archiveCode'] . 'seri.redif') {
             $this->sendRedif($this->getFormatter()->formatSeries($this->getSeriesData($request, $context, $settings)));
         }
 
@@ -260,7 +260,7 @@ class RepecHandler extends Handler
             if ($counts[$baseName] > 1) {
                 $baseName .= 'id' . $issue->getId();
             }
-            $issueFileNames[$baseName . '.rdf'] = $issue;
+            $issueFileNames[$baseName . '.redif'] = $issue;
         }
         return $issueFileNames;
     }
@@ -321,15 +321,15 @@ class RepecHandler extends Handler
         header('Content-Type: text/html; charset=UTF-8');
         $archiveCode = htmlspecialchars($settings['archiveCode'], ENT_QUOTES, 'UTF-8');
         $seriesCode = htmlspecialchars($settings['seriesCode'], ENT_QUOTES, 'UTF-8');
-        $archiveTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'arch.rdf'), null, null, true);
-        $seriesTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'seri.rdf'), null, null, true);
+        $archiveTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'arch.redif'), null, null, true);
+        $seriesTemplateUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'seri.redif'), null, null, true);
         $seriesUrl = $request->url(null, 'repec', $settings['archiveCode'], array($settings['seriesCode']), null, null, true);
 
         echo '<!doctype html><html><head><meta charset="utf-8"><title>RePEc ' . $archiveCode . '</title></head><body>';
         echo '<h1>RePEc ' . $archiveCode . '</h1><ul>';
         if ($level === 'archive') {
-            echo '<li><a href="' . htmlspecialchars($archiveTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'arch.rdf</a></li>';
-            echo '<li><a href="' . htmlspecialchars($seriesTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'seri.rdf</a></li>';
+            echo '<li><a href="' . htmlspecialchars($archiveTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'arch.redif</a></li>';
+            echo '<li><a href="' . htmlspecialchars($seriesTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'seri.redif</a></li>';
             echo '<li><a href="' . htmlspecialchars($seriesUrl, ENT_QUOTES, 'UTF-8') . '">' . $seriesCode . '/</a></li>';
         } else {
             foreach ($issueFileNames as $fileName => $issue) {
