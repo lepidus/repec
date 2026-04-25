@@ -204,8 +204,45 @@ class RepecHandler extends Handler
             'month' => $month,
             'doi' => $publication->getStoredPubId('doi') ?: $submission->getStoredPubId('doi'),
             'files' => $files,
-            'handle' => 'RePEc:' . $settings['archiveCode'] . ':' . $settings['seriesCode'] . ':a:' . $submission->getId(),
+            'handle' => $this->getArticleHandle($settings, $submission, $issue, $year),
         );
+    }
+
+    private function getArticleHandle($settings, $submission, $issue, $year)
+    {
+        $parts = array('RePEc', $settings['archiveCode'], $settings['seriesCode']);
+
+        if ($issue && $issue->getVolume()) {
+            $parts[] = 'v';
+            $parts[] = $this->cleanHandlePart($issue->getVolume());
+        }
+        if ($year) {
+            $parts[] = 'y';
+            $parts[] = $this->cleanHandlePart($year);
+        }
+        if ($issue && $issue->getNumber()) {
+            $parts[] = 'i';
+            $parts[] = $this->cleanHandlePart($issue->getNumber());
+        }
+
+        $parts[] = 'id';
+        $parts[] = $submission->getId();
+
+        return implode(':', array_filter($parts, 'strlen'));
+    }
+
+    private function cleanHandlePart($value)
+    {
+        $value = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+        if (function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if ($converted !== false) {
+                $value = $converted;
+            }
+        }
+        $value = strtolower(trim($value));
+        $value = preg_replace('/[^a-z0-9]+/', '-', $value);
+        return trim($value, '-');
     }
 
     private function getArticleFiles($request, $context, $submission, $publication)
