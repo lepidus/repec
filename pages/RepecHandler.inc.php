@@ -248,6 +248,7 @@ class RepecHandler extends Handler
     private function getArticleFiles($request, $context, $submission, $publication)
     {
         $files = array(array(
+            'function' => 'Abstract page',
             'url' => $request->url($context->getPath(), 'article', 'view', array($submission->getBestId())),
             'format' => 'text/html',
         ));
@@ -260,6 +261,7 @@ class RepecHandler extends Handler
             }
             if ($pdfUrl && $pdfUrl !== $files[0]['url']) {
                 $files[] = array(
+                    'function' => 'Full text',
                     'url' => $pdfUrl,
                     'format' => 'application/pdf',
                 );

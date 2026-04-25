@@ -40,8 +40,8 @@ class RepecFormatterTest extends PKPTestCase
             'month' => 'April',
             'doi' => '10.1234/example',
             'files' => array(
-                array('url' => 'https://example.org/article/view/10', 'format' => 'text/html'),
-                array('url' => 'https://example.org/article/download/10/1', 'format' => 'application/pdf'),
+                array('function' => 'Abstract page', 'url' => 'https://example.org/article/view/10', 'format' => 'text/html'),
+                array('function' => 'Full text', 'url' => 'https://example.org/article/download/10/1', 'format' => 'application/pdf'),
             ),
             'handle' => 'RePEc:abc:journl:a:10',
         )));
@@ -51,8 +51,8 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertStringContainsString("Publication-Status: Published\n", $output);
         $this->assertStringContainsString("Abstract: Resumo com HTML.\n", $output);
         $this->assertStringContainsString("Keywords: economia; região\n", $output);
-        $this->assertStringContainsString("File-URL: https://example.org/article/view/10\nFile-Format: text/html\n", $output);
-        $this->assertStringContainsString("File-URL: https://example.org/article/download/10/1\nFile-Format: application/pdf\n", $output);
+        $this->assertStringContainsString("File-URL: https://example.org/article/view/10\nFile-Function: Abstract page\nFile-Format: text/html\n", $output);
+        $this->assertStringContainsString("File-URL: https://example.org/article/download/10/1\nFile-Function: Full text\nFile-Format: application/pdf\n", $output);
         $this->assertStringContainsString("Handle: RePEc:abc:journl:a:10\n", $output);
     }
 

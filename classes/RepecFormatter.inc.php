@@ -72,6 +72,9 @@ class RepecFormatter
             if (!empty($article['files'])) {
                 foreach ($article['files'] as $file) {
                     $lines[] = array('File-URL', $file['url']);
+                    if (!empty($file['function'])) {
+                        $lines[] = array('File-Function', $file['function']);
+                    }
                     $lines[] = array('File-Format', $file['format']);
                 }
             } elseif (!empty($article['fileUrl'])) {
