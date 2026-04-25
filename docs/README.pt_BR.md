@@ -27,3 +27,15 @@ O plugin publica dinamicamente:
 O plugin publica um arquivo ReDIF por edição publicada. O nome do arquivo é gerado a partir da identificação da edição configurada no OJS, por exemplo `v42i2y2022.redif` para volume 42, edição 2, ano 2022.
 
 O conteúdo exportado no v1 é limitado a artigos publicados da revista atual, como `ReDIF-Article 1.0`. O campo `File-URL` aponta para a página pública do artigo no OJS.
+
+## Créditos
+
+Este plugin foi desenvolvido por [Lepidus Tecnologia](https://lepidus.com.br/)
+
+## Licença
+
+![License](https://img.shields.io/badge/license-GPLv3-blue)
+
+**Licença: Licença Pública Geral GNU v3.0**
+
+**Copyright: 2026 Lepidus Tecnologia**
