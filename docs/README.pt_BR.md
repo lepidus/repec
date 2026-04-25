@@ -1,4 +1,4 @@
-# RePEc/ReDIF
+# Gerador de ReDIF para RePEc
 
 Plugin genérico para OJS 3.3 que publica metadados da revista em formato ReDIF para indexação no RePEc.
 

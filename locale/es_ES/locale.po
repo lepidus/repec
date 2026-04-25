@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "plugins.generic.repec.displayName"
-msgstr "RePEc/ReDIF"
+msgstr "Generador de ReDIF para RePEc"
 
 msgid "plugins.generic.repec.description"
 msgstr "Publica metadatos de la revista en formato ReDIF para su indexación en RePEc."
