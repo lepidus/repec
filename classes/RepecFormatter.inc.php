@@ -57,6 +57,7 @@ class RepecFormatter
 
             $lines = array_merge($lines, array(
                 array('Title', $article['title']),
+                array('Publication-Status', 'Published'),
                 array('Abstract', $article['abstract']),
                 array('Keywords', $article['keywords']),
                 array('Journal', $article['journal']),
@@ -68,7 +69,12 @@ class RepecFormatter
                 array('DOI', $article['doi']),
             ));
 
-            if (!empty($article['fileUrl'])) {
+            if (!empty($article['files'])) {
+                foreach ($article['files'] as $file) {
+                    $lines[] = array('File-URL', $file['url']);
+                    $lines[] = array('File-Format', $file['format']);
+                }
+            } elseif (!empty($article['fileUrl'])) {
                 $lines[] = array('File-URL', $article['fileUrl']);
                 $lines[] = array('File-Format', $article['fileFormat']);
             }
@@ -84,7 +90,7 @@ class RepecFormatter
         $output = array();
         foreach ($lines as $line) {
             list($field, $value) = $line;
-            $value = $this->cleanValue($value);
+            $value = $this->cleanValue($value, $field);
             if ($value === '') {
                 continue;
             }
@@ -107,10 +113,11 @@ class RepecFormatter
         return $line;
     }
 
-    private function cleanValue($value)
+    private function cleanValue($value, $field = null)
     {
         if (is_array($value)) {
-            $value = implode(', ', array_filter(array_map('trim', $value)));
+            $separator = $field === 'Keywords' ? '; ' : ', ';
+            $value = implode($separator, array_filter(array_map('trim', $value)));
         }
         $value = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
         $value = preg_replace('/[ \t]+/', ' ', $value);

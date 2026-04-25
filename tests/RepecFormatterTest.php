@@ -39,16 +39,20 @@ class RepecFormatterTest extends PKPTestCase
             'year' => '2026',
             'month' => 'April',
             'doi' => '10.1234/example',
-            'fileUrl' => 'https://example.org/article/view/10',
-            'fileFormat' => 'text/html',
+            'files' => array(
+                array('url' => 'https://example.org/article/view/10', 'format' => 'text/html'),
+                array('url' => 'https://example.org/article/download/10/1', 'format' => 'application/pdf'),
+            ),
             'handle' => 'RePEc:abc:journl:a:10',
         )));
 
         $this->assertStringContainsString("Author-Name: Ana Silva\nAuthor-Workplace-Name: Universidade Exemplo\n", $output);
         $this->assertStringContainsString("Author-Name: Bruno Souza\n", $output);
+        $this->assertStringContainsString("Publication-Status: Published\n", $output);
         $this->assertStringContainsString("Abstract: Resumo com HTML.\n", $output);
-        $this->assertStringContainsString("Keywords: economia, região\n", $output);
+        $this->assertStringContainsString("Keywords: economia; região\n", $output);
         $this->assertStringContainsString("File-URL: https://example.org/article/view/10\nFile-Format: text/html\n", $output);
+        $this->assertStringContainsString("File-URL: https://example.org/article/download/10/1\nFile-Format: application/pdf\n", $output);
         $this->assertStringContainsString("Handle: RePEc:abc:journl:a:10\n", $output);
     }
 
