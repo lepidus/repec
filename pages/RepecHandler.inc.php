@@ -83,7 +83,7 @@ class RepecHandler extends Handler
             $settings['providerName'] = $context->getLocalizedName();
         }
         if (empty($settings['providerHomepage'])) {
-            $settings['providerHomepage'] = $request->url($context->getPath(), null, null, null, null, null, true);
+            $settings['providerHomepage'] = $request->url($context->getPath());
         }
         $settings['issn'] = trim((string) $context->getData('onlineIssn'));
         if (empty($settings['issn'])) {
@@ -134,14 +134,14 @@ class RepecHandler extends Handler
 
     private function getArchiveData($request, $context, $settings)
     {
-        $settings['archiveUrl'] = $request->url($context->getPath(), 'repec', $settings['archiveCode'], null, null, null, true) . '/';
+        $settings['archiveUrl'] = $request->url($context->getPath(), 'repec', $settings['archiveCode']);
         return $settings;
     }
 
     private function getSeriesData($request, $context, $settings)
     {
         if (empty($settings['providerHomepage'])) {
-            $settings['providerHomepage'] = $request->url($context->getPath(), null, null, null, null, null, true);
+            $settings['providerHomepage'] = $request->url($context->getPath());
         }
         return $settings;
     }
@@ -178,8 +178,7 @@ class RepecHandler extends Handler
         if (!$issue) {
             $issue = $this->getIssue($context, $publication, $submission);
         }
-        $fileUrl = $request->url($context->getPath(), 'article', 'view', array($submission->getBestId()), null, null, true);
-        $fileFormat = 'text/html';
+        $files = $this->getArticleFiles($request, $context, $submission, $publication);
 
         $datePublished = $publication->getData('datePublished');
         $year = $datePublished ? date('Y', strtotime($datePublished)) : '';
@@ -204,10 +203,43 @@ class RepecHandler extends Handler
             'year' => $year,
             'month' => $month,
             'doi' => $publication->getStoredPubId('doi') ?: $submission->getStoredPubId('doi'),
-            'fileUrl' => $fileUrl,
-            'fileFormat' => $fileFormat,
+            'files' => $files,
             'handle' => 'RePEc:' . $settings['archiveCode'] . ':' . $settings['seriesCode'] . ':a:' . $submission->getId(),
         );
+    }
+
+    private function getArticleFiles($request, $context, $submission, $publication)
+    {
+        $files = array(array(
+            'url' => $request->url($context->getPath(), 'article', 'view', array($submission->getBestId())),
+            'format' => 'text/html',
+        ));
+
+        $pdfGalley = $this->getPdfGalley((array) $publication->getData('galleys'));
+        if ($pdfGalley) {
+            $pdfUrl = $pdfGalley->getRemoteURL();
+            if (!$pdfUrl) {
+                $pdfUrl = $request->url($context->getPath(), 'article', 'download', array($submission->getBestId(), $pdfGalley->getBestGalleyId()));
+            }
+            if ($pdfUrl && $pdfUrl !== $files[0]['url']) {
+                $files[] = array(
+                    'url' => $pdfUrl,
+                    'format' => 'application/pdf',
+                );
+            }
+        }
+
+        return $files;
+    }
+
+    private function getPdfGalley($galleys)
+    {
+        foreach ($galleys as $galley) {
+            if ($galley->getFileType() === 'application/pdf') {
+                return $galley;
+            }
+        }
+        return null;
     }
 
     private function getAuthorsData($authors)
