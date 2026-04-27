@@ -205,12 +205,12 @@ class RepecSettingsForm extends Form
             return;
         }
 
-        $this->setData('legacyHandles', $this->getLegacyHandleMapParser()->encode($handles));
+        $this->setData('legacyHandles', $this->getLegacyHandleMapParser()->encodeForStorage($handles));
     }
 
     private function normalizeLegacyHandlesSetting($value)
     {
-        return $this->getLegacyHandleMapParser()->encode($this->getLegacyHandleMapParser()->decode($value));
+        return $this->getLegacyHandleMapParser()->encodeForStorage($this->getLegacyHandleMapParser()->decode($value));
     }
 
     private function decodeGlobalJournals($value)

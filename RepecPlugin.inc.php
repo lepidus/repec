@@ -12,6 +12,7 @@
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('lib.pkp.classes.core.JSONMessage');
 import('lib.pkp.classes.linkAction.LinkAction');
+import('plugins.generic.repec.classes.RepecLegacyHandleMap');
 
 class RepecPlugin extends GenericPlugin
 {
@@ -110,10 +111,8 @@ class RepecPlugin extends GenericPlugin
                     return parent::manage($args, $request);
                 }
 
-                $contents = trim((string) $this->getSetting($context->getId(), 'legacyHandles'));
-                if ($contents === '') {
-                    $contents = "{}\n";
-                }
+                $parser = new RepecLegacyHandleMap();
+                $contents = $parser->encode($parser->decode($this->getSetting($context->getId(), 'legacyHandles')));
 
                 header('Content-Type: application/json; charset=UTF-8');
                 header('Content-Disposition: attachment; filename="repec-legacy-handles-' . $context->getPath() . '.json"');

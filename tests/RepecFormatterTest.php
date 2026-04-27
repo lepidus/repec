@@ -163,4 +163,19 @@ class RepecFormatterTest extends PKPTestCase
 
         $this->assertSame("{}\n", $parser->encode(array()));
     }
+
+    public function testStoresLegacyHandleMapCompressed()
+    {
+        $parser = new RepecLegacyHandleMap();
+        $handles = array(
+            '123' => 'RePEc:abc:journl:v:30:y:2010:i:3:p:364?380,:id:old123',
+            '456' => 'RePEc:abc:journl:a:old456',
+        );
+        $stored = $parser->encodeForStorage($handles);
+
+        if (function_exists('gzcompress')) {
+            $this->assertStringStartsWith('gz64:', $stored);
+        }
+        $this->assertSame($handles, $parser->decode($stored));
+    }
 }
