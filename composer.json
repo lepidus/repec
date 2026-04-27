@@ -1,0 +1,16 @@
+{
+    "name": "lepidus/repec",
+    "description": "OJS 3.3 plugin that publishes journal metadata in ReDIF format for RePEc indexing.",
+    "type": "ojs-plugin",
+    "license": "GPL-3.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95"
+    },
+    "config": {
+        "bin-dir": "vendor/bin",
+        "sort-packages": true
+    }
+}
