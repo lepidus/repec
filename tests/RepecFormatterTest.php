@@ -387,6 +387,14 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertSame('abc000', $method->invoke($form, $this->getContextStub('abc', '', '', 'Journal Example')));
     }
 
+    public function testSettingsTemplateUsesOjs34ComponentRoute()
+    {
+        $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
+
+        $this->assertStringContainsString('router=\PKP\core\PKPApplication::ROUTE_COMPONENT', $template);
+        $this->assertStringNotContainsString('router=$smarty.const.ROUTE_COMPONENT', $template);
+    }
+
     private function getSettingsFormWithoutConstructor()
     {
         return (new ReflectionClass(RepecSettingsForm::class))->newInstanceWithoutConstructor();
