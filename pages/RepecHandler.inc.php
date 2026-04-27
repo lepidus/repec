@@ -41,7 +41,11 @@ class RepecHandler extends Handler
         }
 
         $path = $this->getRepecPath($request, $args);
-        if (empty($path) || $path[0] !== $settings['archiveCode']) {
+        if (empty($path)) {
+            $request->redirect($context->getPath(), 'repec', $settings['archiveCode']);
+        }
+
+        if ($path[0] !== $settings['archiveCode']) {
             $request->getDispatcher()->handle404();
         }
 
@@ -607,9 +611,10 @@ class RepecHandler extends Handler
 
         echo '<!doctype html><html><head><meta charset="utf-8"><title>RePEc archives</title></head><body>';
         echo '<h1>RePEc archives</h1>';
+        echo '<ul>';
 
         if ($plugin->getEnabled(0) && $this->hasRequiredGlobalSettings($globalSettings)) {
-            $this->printArchiveLinks($request, 'index', $globalSettings, $this->getGlobalSeries($globalSettings));
+            $this->printArchiveLink($request, 'index', $globalSettings);
         }
 
         $journalDao = DAORegistry::getDAO('JournalDAO');
@@ -624,41 +629,18 @@ class RepecHandler extends Handler
                 continue;
             }
 
-            $this->printArchiveLinks($request, $context->getPath(), $settings, array(array(
-                'context' => $context,
-                'seriesCode' => $settings['seriesCode'],
-            )));
+            $this->printArchiveLink($request, $context->getPath(), $settings);
         }
 
-        echo '</body></html>';
+        echo '</ul></body></html>';
         exit();
     }
 
-    private function printArchiveLinks($request, $contextPath, $settings, $seriesList)
+    private function printArchiveLink($request, $contextPath, $settings)
     {
         $archiveCode = htmlspecialchars($settings['archiveCode'], ENT_QUOTES, 'UTF-8');
         $archiveUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], null, null, null, true);
-        $archiveTemplateUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'arch.redif'), null, null, true);
-        $seriesTemplateUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'seri.redif'), null, null, true);
-
-        echo '<section>';
-        echo '<h2>RePEc ' . $archiveCode . '</h2>';
-        echo '<ul>';
-        echo '<li><a href="' . htmlspecialchars($archiveUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . '/</a></li>';
-        echo '<li><a href="' . htmlspecialchars($archiveTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'arch.redif</a></li>';
-        echo '<li><a href="' . htmlspecialchars($seriesTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'seri.redif</a></li>';
-
-        foreach ($seriesList as $series) {
-            $seriesUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($series['seriesCode']), null, null, true);
-            echo '<li><a href="' . htmlspecialchars($seriesUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($series['seriesCode'], ENT_QUOTES, 'UTF-8') . '/</a> - ' . htmlspecialchars($series['context']->getLocalizedName(), ENT_QUOTES, 'UTF-8') . '</li>';
-            foreach ($this->getIssueFileNames($series['context']) as $fileName => $issue) {
-                $issueUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($series['seriesCode'], $fileName), null, null, true);
-                echo '<li><a href="' . htmlspecialchars($issueUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($series['seriesCode'] . '/' . $fileName, ENT_QUOTES, 'UTF-8') . '</a></li>';
-            }
-        }
-
-        echo '</ul>';
-        echo '</section>';
+        echo '<li><a href="' . htmlspecialchars($archiveUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . '</a></li>';
     }
 
     private function sendGlobalDirectoryIndex($request, $settings, $level, $issueFileNames = array(), $currentSeriesCode = '')
