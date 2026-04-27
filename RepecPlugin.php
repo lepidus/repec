@@ -18,7 +18,6 @@ use APP\plugins\generic\repec\pages\RepecHandler;
 use APP\template\TemplateManager;
 use PKP\config\Config;
 use PKP\core\JSONMessage;
-use PKP\facades\Locale;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
 use PKP\plugins\GenericPlugin;
@@ -96,7 +95,6 @@ class RepecPlugin extends GenericPlugin
                 $context = $request->getContext();
                 $contextId = $context ? $context->getId() : 0;
 
-                Locale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
                 $templateMgr = TemplateManager::getManager($request);
                 $templateMgr->registerPlugin('function', 'plugin_url', array($this, 'smartyPluginUrl'));
 

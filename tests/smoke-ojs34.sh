@@ -39,7 +39,7 @@ if [ -z "${OJS34_COOKIE:-}" ]; then
 fi
 
 context_path="${OJS34_CONTEXT_PATH:-publicknowledge}"
-settings_url="${base_url%/}/${context_path}/%24%24%24call%24%24%24/grid/settings/plugins/plugin-grid/manage?verb=settings&plugin=repecplugin&category=generic&_=0"
+settings_url="${base_url%/}/${context_path}/%24%24%24call%24%24%24/grid/settings/plugins/settings-plugin-grid/manage?verb=settings&plugin=repecplugin&category=generic&_=0"
 
 curl -sS -D "$headers_file" -o "$body_file" \
 	-H 'X-Requested-With: XMLHttpRequest' \

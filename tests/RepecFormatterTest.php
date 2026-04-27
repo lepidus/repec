@@ -395,6 +395,14 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertStringNotContainsString('router=$smarty.const.ROUTE_COMPONENT', $template);
     }
 
+    public function testPluginDoesNotRequireRemovedLocaleComponentConstants()
+    {
+        $plugin = file_get_contents(dirname(__DIR__) . '/RepecPlugin.php');
+
+        $this->assertStringNotContainsString('Locale::requireComponents', $plugin);
+        $this->assertStringNotContainsString('LOCALE_COMPONENT_APP_COMMON', $plugin);
+    }
+
     private function getSettingsFormWithoutConstructor()
     {
         return (new ReflectionClass(RepecSettingsForm::class))->newInstanceWithoutConstructor();
