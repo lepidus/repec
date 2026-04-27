@@ -360,7 +360,7 @@ class RepecHandler extends Handler
         }
 
         return array(
-            'authors' => $this->getAuthorsData((array) $publication->getData('authors')),
+            'authors' => $this->getAuthorsData($publication->getData('authors')),
             'title' => $publication->getLocalizedTitle(),
             'abstract' => $publication->getLocalizedData('abstract'),
             'keywords' => $publication->getLocalizedData('keywords'),
@@ -468,7 +468,7 @@ class RepecHandler extends Handler
             'format' => 'text/html',
         ));
 
-        $pdfGalley = $this->getPdfGalley((array) $publication->getData('galleys'));
+        $pdfGalley = $this->getPdfGalley($publication->getData('galleys'));
         if ($pdfGalley) {
             $pdfUrl = $pdfGalley->getRemoteURL();
             if (!$pdfUrl) {
@@ -488,8 +488,12 @@ class RepecHandler extends Handler
 
     private function getPdfGalley($galleys)
     {
+        if (empty($galleys) || !is_iterable($galleys)) {
+            return null;
+        }
+
         foreach ($galleys as $galley) {
-            if ($galley->getFileType() === 'application/pdf') {
+            if (is_object($galley) && method_exists($galley, 'getFileType') && $galley->getFileType() === 'application/pdf') {
                 return $galley;
             }
         }
@@ -499,7 +503,14 @@ class RepecHandler extends Handler
     private function getAuthorsData($authors)
     {
         $authorsData = array();
+        if (empty($authors) || !is_iterable($authors)) {
+            return $authorsData;
+        }
+
         foreach ($authors as $author) {
+            if (!is_object($author) || !method_exists($author, 'getFullName')) {
+                continue;
+            }
             $name = trim($author->getFullName());
             if ($name === '') {
                 $name = trim($author->getLocalizedGivenName() . ' ' . $author->getLocalizedFamilyName());

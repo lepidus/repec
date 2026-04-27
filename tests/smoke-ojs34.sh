@@ -5,6 +5,10 @@ base_url="${OJS34_BASE_URL:-http://127.0.0.1:8034/index.php}"
 context_path="${OJS34_CONTEXT_PATH:-publicknowledge}"
 test_user="${OJS_TEST_USER:-admin}"
 test_password="${OJS_TEST_PASSWORD:-admin}"
+test_archive_code="${OJS_REPEC_TEST_ARCHIVE_CODE:-tst}"
+test_series_code="${OJS_REPEC_TEST_SERIES_CODE:-public}"
+test_issue_file="${OJS_REPEC_TEST_ISSUE_FILE:-v1i2y2014.redif}"
+test_maintainer_email="${OJS_REPEC_TEST_MAINTAINER_EMAIL:-repec-test@example.org}"
 tmp_dir="${TMPDIR:-/tmp}"
 headers_file="$(mktemp "${tmp_dir}/repec-smoke-headers.XXXXXX")"
 body_file="$(mktemp "${tmp_dir}/repec-smoke-body.XXXXXX")"
@@ -40,6 +44,22 @@ assert_no_php_errors() {
 	if grep -Eiq 'Fatal error|Parse error|Exception|Stack trace|Warning:|Call to undefined|Class .* not found|Failed Ajax request' "$body_file"; then
 		fail_with_response "Unexpected PHP/Ajax error output in $1"
 	fi
+}
+
+extract_settings_form_value() {
+	php -r '
+		$json = json_decode(file_get_contents($argv[1]), true);
+		$content = is_array($json) && isset($json["content"]) ? $json["content"] : "";
+		$content = html_entity_decode($content, ENT_QUOTES, "UTF-8");
+		$patterns = [
+			"action" => "/<form[^>]*id=\"repecSettingsForm\"[^>]*action=\"([^\"]*)\"/i",
+			"csrf" => "/name=\"csrfToken\" value=\"([^\"]*)\"/i",
+		];
+		if (!isset($patterns[$argv[2]]) || !preg_match($patterns[$argv[2]], $content, $matches)) {
+			exit(1);
+		}
+		echo html_entity_decode($matches[1], ENT_QUOTES, "UTF-8");
+	' "$body_file" "$1"
 }
 
 curl -sS -D "$headers_file" -o "$body_file" "${base_url%/}/index/repec/"
@@ -104,3 +124,103 @@ if ! grep -q '"status":true' "$body_file"; then
 fi
 
 echo "OJS 3.4 RePEc settings smoke passed: $settings_url"
+
+settings_action="$(extract_settings_form_value action || true)"
+settings_csrf_token="$(extract_settings_form_value csrf || true)"
+
+if [ -z "$settings_action" ] || [ -z "$settings_csrf_token" ]; then
+	fail_with_response "Could not extract RePEc settings form action and csrfToken"
+fi
+
+curl -sS -D "$headers_file" -o "$body_file" \
+	-H 'X-Requested-With: XMLHttpRequest' \
+	-H 'Accept: application/json, text/javascript, */*; q=0.01' \
+	-b "$cookie_jar" \
+	-X POST "$settings_action" \
+	--data-urlencode "csrfToken=$settings_csrf_token" \
+	--data-urlencode "archiveCode=$test_archive_code" \
+	--data-urlencode "seriesCode=$test_series_code" \
+	--data-urlencode "maintainerEmail=$test_maintainer_email" \
+	--data-urlencode "legacyHandlesJson="
+
+if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+	fail_with_response "Expected RePEc settings save endpoint to return HTTP 200"
+fi
+
+if ! grep -Eiq 'content-type: application/json|content-type: text/json' "$headers_file"; then
+	fail_with_response "Expected RePEc settings save endpoint to return JSON"
+fi
+
+assert_no_php_errors "RePEc settings save endpoint"
+
+if ! grep -q '"status":true' "$body_file"; then
+	fail_with_response "Expected RePEc settings save JSONMessage with status=true"
+fi
+
+echo "OJS 3.4 RePEc settings configured: archive=$test_archive_code series=$test_series_code"
+
+journal_repec_url="${base_url%/}/${context_path}/repec"
+
+curl -sS -L -D "$headers_file" -o "$body_file" "$journal_repec_url"
+
+if ! head -n 1 "$headers_file" | grep -Eq ' 200 | 30[12378] '; then
+	fail_with_response "Expected journal /repec endpoint to return HTTP 200 or redirect"
+fi
+
+if ! grep -q "<title>RePEc ${test_archive_code}</title>" "$body_file"; then
+	fail_with_response "Expected journal /repec endpoint to publish the configured RePEc archive"
+fi
+
+if ! grep -q "${test_archive_code}arch.redif" "$body_file"; then
+	fail_with_response "Expected journal /repec endpoint to link the archive template"
+fi
+
+if ! grep -q "${test_archive_code}seri.redif" "$body_file"; then
+	fail_with_response "Expected journal /repec endpoint to link the series template"
+fi
+
+if ! grep -q "${test_series_code}/" "$body_file"; then
+	fail_with_response "Expected journal /repec endpoint to link the configured series"
+fi
+
+assert_no_php_errors "journal /repec endpoint"
+
+echo "OJS 3.4 RePEc configured archive smoke passed: $journal_repec_url"
+
+series_repec_url="${base_url%/}/${context_path}/repec/${test_archive_code}/${test_series_code}"
+
+curl -sS -D "$headers_file" -o "$body_file" "$series_repec_url"
+
+if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+	fail_with_response "Expected RePEc series endpoint to return HTTP 200"
+fi
+
+if ! grep -q "$test_issue_file" "$body_file"; then
+	fail_with_response "Expected RePEc series endpoint to list $test_issue_file"
+fi
+
+assert_no_php_errors "RePEc series endpoint"
+
+issue_repec_url="${series_repec_url}/${test_issue_file}"
+
+curl -sS -D "$headers_file" -o "$body_file" "$issue_repec_url"
+
+if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+	fail_with_response "Expected RePEc issue file endpoint to return HTTP 200"
+fi
+
+if ! grep -Eiq 'content-type: text/plain' "$headers_file"; then
+	fail_with_response "Expected RePEc issue file endpoint to return text/plain"
+fi
+
+if ! grep -q 'Template-Type: ReDIF-Article 1.0' "$body_file"; then
+	fail_with_response "Expected RePEc issue file endpoint to publish article ReDIF templates"
+fi
+
+if ! grep -q "Handle: RePEc:${test_archive_code}:${test_series_code}:" "$body_file"; then
+	fail_with_response "Expected RePEc issue file endpoint to use the configured archive and series in article handles"
+fi
+
+assert_no_php_errors "RePEc issue file endpoint"
+
+echo "OJS 3.4 RePEc issue file smoke passed: $issue_repec_url"

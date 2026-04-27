@@ -132,12 +132,14 @@ class RepecPlugin extends GenericPlugin
     public function setupRepecHandler($hookName, $params)
     {
         $page = &$params[0];
+        $op = &$params[1];
         $handler = &$params[3];
 
         if ($page !== 'repec') {
             return false;
         }
 
+        $op = ROUTER_DEFAULT_OP;
         $handler = new RepecHandler();
         return true;
     }
