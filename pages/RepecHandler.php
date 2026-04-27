@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/repec/pages/RepecHandler.inc.php
+ * @file plugins/generic/repec/pages/RepecHandler.php
  *
  * @class RepecHandler
  * @ingroup plugins_generic_repec
@@ -9,10 +9,19 @@
  * @brief Public handler for RePEc/ReDIF archive URLs.
  */
 
-import('classes.handler.Handler');
-import('plugins.generic.repec.classes.RepecFormatter');
-import('plugins.generic.repec.classes.RepecLegacyHandleMap');
-import('plugins.generic.repec.classes.RepecSettingsForm');
+namespace APP\plugins\generic\repec\pages;
+
+use APP\facades\Repo;
+use APP\handler\Handler;
+use APP\issue\Collector as IssueCollector;
+use APP\plugins\generic\repec\classes\RepecFormatter;
+use APP\plugins\generic\repec\classes\RepecLegacyHandleMap;
+use APP\plugins\generic\repec\classes\RepecSettingsForm;
+use APP\submission\Collector as SubmissionCollector;
+use APP\submission\Submission;
+use PKP\config\Config;
+use PKP\db\DAORegistry;
+use PKP\plugins\PluginRegistry;
 
 class RepecHandler extends Handler
 {
@@ -310,16 +319,13 @@ class RepecHandler extends Handler
 
     private function getArticlesData($request, $context, $settings, $issue)
     {
-        import('classes.submission.SubmissionDAO');
-
         $articles = array();
-        $submissions = Services::get('submission')->getMany(array(
-            'contextId' => $context->getId(),
-            'issueIds' => $issue->getId(),
-            'status' => STATUS_PUBLISHED,
-            'orderBy' => 'seq',
-            'orderDirection' => 'ASC',
-        ));
+        $submissions = Repo::submission()->getCollector()
+            ->filterByContextIds([$context->getId()])
+            ->filterByIssueIds([$issue->getId()])
+            ->filterByStatus([Submission::STATUS_PUBLISHED])
+            ->orderBy(SubmissionCollector::ORDERBY_SEQUENCE, SubmissionCollector::ORDER_DIR_ASC)
+            ->getMany();
 
         foreach ($submissions as $submission) {
             $publication = $submission->getCurrentPublication();
@@ -511,21 +517,33 @@ class RepecHandler extends Handler
 
     private function getIssue($context, $publication, $submission)
     {
-        $issueDao = DAORegistry::getDAO('IssueDAO');
         $issueId = $publication->getData('issueId');
         if ($issueId) {
-            return $issueDao->getById($issueId, $context->getId(), true);
+            return Repo::issue()->get((int) $issueId, $context->getId());
         }
-        return $issueDao->getBySubmissionId($submission->getId(), $context->getId());
+        return Repo::issue()->getCollector()
+            ->filterByContextIds([$context->getId()])
+            ->filterByPublished(true)
+            ->getMany()
+            ->first(function ($issue) use ($submission) {
+                return Repo::submission()->getCollector()
+                    ->filterByIssueIds([$issue->getId()])
+                    ->filterByStatus([Submission::STATUS_PUBLISHED])
+                    ->getIds()
+                    ->contains($submission->getId());
+            });
     }
 
     private function getIssueFileNames($context)
     {
-        $issueDao = DAORegistry::getDAO('IssueDAO');
-        $publishedIssues = $issueDao->getPublishedIssues($context->getId());
+        $publishedIssues = Repo::issue()->getCollector()
+            ->filterByContextIds([$context->getId()])
+            ->filterByPublished(true)
+            ->orderBy(IssueCollector::ORDERBY_PUBLISHED_ISSUES)
+            ->getMany();
         $issues = array();
         $counts = array();
-        while ($issue = $publishedIssues->next()) {
+        foreach ($publishedIssues as $issue) {
             $baseName = $this->getIssueFileBaseName($issue);
             $issues[] = array($baseName, $issue);
             if (!isset($counts[$baseName])) {

@@ -7,6 +7,6 @@
  * @brief Wrapper for loading the RePEc/ReDIF plugin.
  */
 
-require_once('RepecPlugin.inc.php');
+require_once('RepecPlugin.php');
 
-return new RepecPlugin();
+return new \APP\plugins\generic\repec\RepecPlugin();

@@ -1,9 +1,12 @@
 <?php
 
-import('lib.pkp.tests.PKPTestCase');
-import('plugins.generic.repec.classes.RepecFormatter');
-import('plugins.generic.repec.classes.RepecLegacyHandleMap');
-import('plugins.generic.repec.pages.RepecHandler');
+namespace APP\plugins\generic\repec\tests;
+
+use APP\plugins\generic\repec\classes\RepecFormatter;
+use APP\plugins\generic\repec\classes\RepecLegacyHandleMap;
+use APP\plugins\generic\repec\pages\RepecHandler;
+use PKP\tests\PKPTestCase;
+use ReflectionMethod;
 
 class RepecFormatterTest extends PKPTestCase
 {

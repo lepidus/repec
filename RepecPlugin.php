@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/repec/RepecPlugin.inc.php
+ * @file plugins/generic/repec/RepecPlugin.php
  *
  * @class RepecPlugin
  * @ingroup plugins_generic_repec
@@ -9,10 +9,20 @@
  * @brief Publishes OJS journal metadata as RePEc/ReDIF templates.
  */
 
-import('lib.pkp.classes.plugins.GenericPlugin');
-import('lib.pkp.classes.core.JSONMessage');
-import('lib.pkp.classes.linkAction.LinkAction');
-import('plugins.generic.repec.classes.RepecLegacyHandleMap');
+namespace APP\plugins\generic\repec;
+
+use APP\core\Application;
+use APP\plugins\generic\repec\classes\RepecLegacyHandleMap;
+use APP\plugins\generic\repec\classes\RepecSettingsForm;
+use APP\plugins\generic\repec\pages\RepecHandler;
+use APP\template\TemplateManager;
+use PKP\config\Config;
+use PKP\core\JSONMessage;
+use PKP\facades\Locale;
+use PKP\linkAction\LinkAction;
+use PKP\linkAction\request\AjaxModal;
+use PKP\plugins\GenericPlugin;
+use PKP\plugins\Hook;
 
 class RepecPlugin extends GenericPlugin
 {
@@ -25,11 +35,11 @@ class RepecPlugin extends GenericPlugin
 
         $this->addLocaleData();
 
-        if (!Config::getVar('general', 'installed') || defined('RUNNING_UPGRADE')) {
+        if (!Application::isInstalled() || Application::isUnderMaintenance() || defined('RUNNING_UPGRADE')) {
             return true;
         }
 
-        HookRegistry::register('LoadHandler', array($this, 'setupRepecHandler'));
+        Hook::add('LoadHandler', [$this, 'setupRepecHandler']);
 
         return true;
     }
@@ -59,7 +69,6 @@ class RepecPlugin extends GenericPlugin
         $router = $request->getRouter();
         $context = $request->getContext();
         $contextId = $context ? $context->getId() : 0;
-        import('lib.pkp.classes.linkAction.request.AjaxModal');
         return array_merge(
             $this->getEnabled($contextId) ? array(
                 new LinkAction(
@@ -87,11 +96,10 @@ class RepecPlugin extends GenericPlugin
                 $context = $request->getContext();
                 $contextId = $context ? $context->getId() : 0;
 
-                AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
+                Locale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
                 $templateMgr = TemplateManager::getManager($request);
                 $templateMgr->registerPlugin('function', 'plugin_url', array($this, 'smartyPluginUrl'));
 
-                $this->import('classes.RepecSettingsForm');
                 $form = new RepecSettingsForm($this, $contextId);
 
                 if ($request->getUserVar('save')) {
@@ -126,17 +134,17 @@ class RepecPlugin extends GenericPlugin
     public function setupRepecHandler($hookName, $params)
     {
         $page = &$params[0];
-        $op = &$params[1];
+        $handler = &$params[3];
 
         if ($page !== 'repec') {
             return false;
         }
 
-        $op = 'index';
-        if (!defined('HANDLER_CLASS')) {
-            define('HANDLER_CLASS', 'RepecHandler');
-        }
-        $this->import('pages.RepecHandler');
+        $handler = new RepecHandler();
         return true;
     }
+}
+
+if (!PKP_STRICT_MODE) {
+    class_alias('\APP\plugins\generic\repec\RepecPlugin', '\RepecPlugin');
 }

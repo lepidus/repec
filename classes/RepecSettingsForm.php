@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/repec/classes/RepecSettingsForm.inc.php
+ * @file plugins/generic/repec/classes/RepecSettingsForm.php
  *
  * @class RepecSettingsForm
  * @ingroup plugins_generic_repec
@@ -9,13 +9,17 @@
  * @brief Settings form for the RePEc/ReDIF plugin.
  */
 
-import('lib.pkp.classes.form.Form');
-import('lib.pkp.classes.form.validation.FormValidator');
-import('lib.pkp.classes.form.validation.FormValidatorCSRF');
-import('lib.pkp.classes.form.validation.FormValidatorCustom');
-import('lib.pkp.classes.form.validation.FormValidatorEmail');
-import('lib.pkp.classes.form.validation.FormValidatorPost');
-import('plugins.generic.repec.classes.RepecLegacyHandleMap');
+namespace APP\plugins\generic\repec\classes;
+
+use APP\core\Application;
+use APP\template\TemplateManager;
+use PKP\db\DAORegistry;
+use PKP\form\Form;
+use PKP\form\validation\FormValidator;
+use PKP\form\validation\FormValidatorCSRF;
+use PKP\form\validation\FormValidatorCustom;
+use PKP\form\validation\FormValidatorEmail;
+use PKP\form\validation\FormValidatorPost;
 
 class RepecSettingsForm extends Form
 {
@@ -344,10 +348,10 @@ class RepecSettingsForm extends Form
         }
         $context = $request->getContext();
         if ($this->isGlobalContext()) {
-            return $request->getDispatcher()->url($request, ROUTE_PAGE, 'index', 'repec', $archiveCode);
+            return $request->getDispatcher()->url($request, Application::ROUTE_PAGE, 'index', 'repec', $archiveCode);
         }
         $contextPath = $context ? $context->getPath() : null;
-        return $request->getDispatcher()->url($request, ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
+        return $request->getDispatcher()->url($request, Application::ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
     }
 
     private function getLegacyHandles()

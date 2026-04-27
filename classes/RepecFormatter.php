@@ -1,13 +1,15 @@
 <?php
 
 /**
- * @file plugins/generic/repec/classes/RepecFormatter.inc.php
+ * @file plugins/generic/repec/classes/RepecFormatter.php
  *
  * @class RepecFormatter
  * @ingroup plugins_generic_repec
  *
  * @brief Formats archive, series and article metadata as ReDIF text.
  */
+
+namespace APP\plugins\generic\repec\classes;
 
 class RepecFormatter
 {

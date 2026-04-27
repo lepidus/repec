@@ -1,13 +1,15 @@
 <?php
 
 /**
- * @file plugins/generic/repec/classes/RepecLegacyHandleMap.inc.php
+ * @file plugins/generic/repec/classes/RepecLegacyHandleMap.php
  *
  * @class RepecLegacyHandleMap
  * @ingroup plugins_generic_repec
  *
  * @brief Parses and validates legacy RePEc article handle maps.
  */
+
+namespace APP\plugins\generic\repec\classes;
 
 class RepecLegacyHandleMap
 {

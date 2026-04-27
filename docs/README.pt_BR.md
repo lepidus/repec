@@ -1,6 +1,8 @@
 # Gerador de ReDIF para RePEc
 
-Plugin genérico para OJS 3.3 que publica metadados da revista em formato ReDIF para indexação no RePEc.
+Plugin genérico para OJS 3.4 que publica metadados da revista em formato ReDIF para indexação no RePEc.
+
+Use o ramo `stable-3_4_0` para OJS 3.4. Use o ramo `stable-3_3_0` para OJS 3.3.
 
 Traduções:
 

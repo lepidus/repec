@@ -8,6 +8,11 @@
  * php plugins/generic/repec/tools/export-current-repec-candidates.php --context-id=1 > current-articles.tsv
  */
 
+use APP\facades\Repo;
+use APP\submission\Submission;
+use PKP\config\Config;
+use PKP\db\DAORegistry;
+
 $ojsRoot = realpath(__DIR__ . '/../../../..');
 if (!$ojsRoot || !file_exists($ojsRoot . '/tools/bootstrap.inc.php')) {
     fwrite(STDERR, "Could not locate OJS root from this plugin path.\n");
@@ -15,7 +20,6 @@ if (!$ojsRoot || !file_exists($ojsRoot . '/tools/bootstrap.inc.php')) {
 }
 
 require_once $ojsRoot . '/tools/bootstrap.inc.php';
-import('classes.submission.Submission'); // STATUS_PUBLISHED
 
 $options = getopt('', array('context-path:', 'context-id:', 'help'));
 if (isset($options['help']) || (!isset($options['context-path']) && !isset($options['context-id']))) {
@@ -58,10 +62,10 @@ $columns = array(
 echo implode("\t", $columns) . "\n";
 
 $preferredLocale = getPreferredLocale($context);
-$submissions = Services::get('submission')->getMany(array(
-    'contextId' => $context->getId(),
-    'status' => STATUS_PUBLISHED,
-));
+$submissions = Repo::submission()->getCollector()
+    ->filterByContextIds([$context->getId()])
+    ->filterByStatus([Submission::STATUS_PUBLISHED])
+    ->getMany();
 
 foreach ($submissions as $submission) {
     $publication = $submission->getCurrentPublication();
@@ -105,12 +109,21 @@ foreach ($submissions as $submission) {
 
 function getIssue($context, $publication, $submission)
 {
-    $issueDao = DAORegistry::getDAO('IssueDAO');
     $issueId = $publication->getData('issueId');
     if ($issueId) {
-        return $issueDao->getById($issueId, $context->getId(), true);
+        return Repo::issue()->get((int) $issueId, $context->getId());
     }
-    return $issueDao->getBySubmissionId($submission->getId(), $context->getId());
+    return Repo::issue()->getCollector()
+        ->filterByContextIds([$context->getId()])
+        ->filterByPublished(true)
+        ->getMany()
+        ->first(function ($issue) use ($submission) {
+            return Repo::submission()->getCollector()
+                ->filterByIssueIds([$issue->getId()])
+                ->filterByStatus([Submission::STATUS_PUBLISHED])
+                ->getIds()
+                ->contains($submission->getId());
+        });
 }
 
 function getAuthors($authors, $preferredLocale)
