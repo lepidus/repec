@@ -103,3 +103,18 @@ msgstr "Informe el nombre del mantenedor."
 
 msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Informe un correo electrónico válido para el mantenedor."
+
+msgid "plugins.generic.repec.settings.globalJournals"
+msgstr "Revistas en este archivo RePEc"
+
+msgid "plugins.generic.repec.settings.globalJournalsDescription"
+msgstr "Seleccione las revistas que se publicarán en el archivo global de esta instalación OJS. Las revistas con una configuración RePEc individual no se pueden seleccionar."
+
+msgid "plugins.generic.repec.settings.globalJournalUnavailable"
+msgstr "Esta revista ya tiene una configuración RePEc individual."
+
+msgid "plugins.generic.repec.settings.globalJournalsInvalid"
+msgstr "Cada revista seleccionada debe tener un código de serie único de 6 caracteres."
+
+msgid "plugins.generic.repec.settings.managedByGlobalArchive"
+msgstr "Esta revista está configurada en el archivo RePEc global {$archiveCode}. La configuración RePEc individual está deshabilitada para esta revista."

@@ -42,6 +42,15 @@ class RepecFormatter
         return $this->formatTemplate($lines);
     }
 
+    public function formatSeriesList($seriesList)
+    {
+        $templates = array();
+        foreach ($seriesList as $series) {
+            $templates[] = $this->formatSeries($series);
+        }
+        return implode("\n", $templates);
+    }
+
     public function formatArticles($articles)
     {
         $templates = array();

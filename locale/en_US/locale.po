@@ -103,3 +103,18 @@ msgstr "Enter the maintainer name."
 
 msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Enter a valid maintainer email."
+
+msgid "plugins.generic.repec.settings.globalJournals"
+msgstr "Journals in this RePEc archive"
+
+msgid "plugins.generic.repec.settings.globalJournalsDescription"
+msgstr "Select the journals that will be published in the global archive for this OJS installation. Journals with an individual RePEc configuration cannot be selected."
+
+msgid "plugins.generic.repec.settings.globalJournalUnavailable"
+msgstr "This journal already has an individual RePEc configuration."
+
+msgid "plugins.generic.repec.settings.globalJournalsInvalid"
+msgstr "Each selected journal must have a unique 6-character series code."
+
+msgid "plugins.generic.repec.settings.managedByGlobalArchive"
+msgstr "This journal is configured in the global RePEc archive {$archiveCode}. Individual RePEc settings are disabled for this journal."

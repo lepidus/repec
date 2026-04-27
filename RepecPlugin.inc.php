@@ -28,9 +28,7 @@ class RepecPlugin extends GenericPlugin
             return true;
         }
 
-        if ($this->getEnabled($mainContextId)) {
-            HookRegistry::register('LoadHandler', array($this, 'setupRepecHandler'));
-        }
+        HookRegistry::register('LoadHandler', array($this, 'setupRepecHandler'));
 
         return true;
     }
@@ -50,12 +48,19 @@ class RepecPlugin extends GenericPlugin
         return __('plugins.generic.repec.description');
     }
 
+    public function isSitePlugin()
+    {
+        return !Application::get()->getRequest()->getContext();
+    }
+
     public function getActions($request, $verb)
     {
         $router = $request->getRouter();
+        $context = $request->getContext();
+        $contextId = $context ? $context->getId() : 0;
         import('lib.pkp.classes.linkAction.request.AjaxModal');
         return array_merge(
-            $this->getEnabled() ? array(
+            $this->getEnabled($contextId) ? array(
                 new LinkAction(
                     'settings',
                     new AjaxModal(

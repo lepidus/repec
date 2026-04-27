@@ -76,4 +76,39 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertStringContainsString("ISSN: 1234-5678\n", $output);
         $this->assertStringNotContainsString("Description:", $output);
     }
+
+    public function testFormatsMultipleSeriesTemplatesInOneFile()
+    {
+        $formatter = new RepecFormatter();
+        $output = $formatter->formatSeriesList(array(
+            array(
+                'archiveCode' => 'abc',
+                'seriesCode' => 'journ1',
+                'seriesName' => 'Journal One',
+                'archiveDescription' => '',
+                'providerName' => 'Publisher One',
+                'providerHomepage' => 'https://example.org/journ1',
+                'providerInstitution' => '',
+                'issn' => '1234-5678',
+                'maintainerName' => 'Maintainer',
+                'maintainerEmail' => 'repec@example.org',
+            ),
+            array(
+                'archiveCode' => 'abc',
+                'seriesCode' => 'journ2',
+                'seriesName' => 'Journal Two',
+                'archiveDescription' => '',
+                'providerName' => 'Publisher Two',
+                'providerHomepage' => 'https://example.org/journ2',
+                'providerInstitution' => '',
+                'issn' => '',
+                'maintainerName' => 'Maintainer',
+                'maintainerEmail' => 'repec@example.org',
+            ),
+        ));
+
+        $this->assertSame(2, substr_count($output, "Template-Type: ReDIF-Series 1.0\n"));
+        $this->assertStringContainsString("Handle: RePEc:abc:journ1\n", $output);
+        $this->assertStringContainsString("Handle: RePEc:abc:journ2\n", $output);
+    }
 }

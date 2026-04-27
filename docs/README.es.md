@@ -28,6 +28,20 @@ El plugin publica un archivo ReDIF por cada número publicado. El nombre del arc
 
 La exportación v1 se limita a los artículos publicados de la revista actual, como `ReDIF-Article 1.0`. El campo `File-URL` apunta a la página pública del artículo en OJS.
 
+## Varias revistas en un archivo
+
+Una instalación OJS también puede publicar un único archivo RePEc para varias revistas. Configure el plugin en el contexto del sitio (`index`) y seleccione las revistas que forman parte del archivo. Por ejemplo, un archivo ficticio `abc` puede publicar las revistas ficticias `Revista Uno`, con código de serie `journ1`, y `Revista Dos`, con código de serie `journ2`.
+
+El archivo global publica:
+
+- `/index/repec/{aaa}/`
+- `/index/repec/{aaa}/{aaa}arch.redif`
+- `/index/repec/{aaa}/{aaa}seri.redif`
+- `/index/repec/{aaa}/{seriesCode}/`
+- `/index/repec/{aaa}/{seriesCode}/{issue}.redif`
+
+Todas las revistas seleccionadas se incluyen en el mismo archivo `{aaa}seri.redif`, con un template `ReDIF-Series 1.0` por revista. Una revista puede usar el archivo global o un archivo individual de la propia revista, pero no ambos.
+
 ## Créditos
 
 Este plugin fue desarrollado por [Lepidus Tecnologia](https://lepidus.com.br/)

@@ -27,6 +27,12 @@ class RepecSettingsForm extends Form
         'maintainerEmail' => 'string',
     );
 
+    public static $globalSettings = array(
+        'archiveCode' => 'string',
+        'maintainerEmail' => 'string',
+        'globalJournals' => 'string',
+    );
+
     public function __construct($plugin, $contextId)
     {
         $this->plugin = $plugin;
@@ -36,26 +42,44 @@ class RepecSettingsForm extends Form
 
         $this->addCheck(new FormValidatorPost($this));
         $this->addCheck(new FormValidatorCSRF($this));
+        if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
+            return;
+        }
+
         $this->addCheck(new FormValidator($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeRequired'));
         $this->addCheck(new FormValidatorCustom($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeInvalid', array($this, 'validateArchiveCode')));
-        $this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
-        $this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
+        if (!$this->isGlobalContext()) {
+            $this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
+            $this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
+        } else {
+            $this->addCheck(new FormValidatorCustom($this, 'globalJournals', 'optional', 'plugins.generic.repec.settings.globalJournalsInvalid', array($this, 'validateGlobalJournals')));
+        }
         $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
     }
 
     public function initData()
     {
         $this->_data = array();
-        foreach (self::$settings as $settingName => $settingType) {
+        $settings = $this->isGlobalContext() ? self::$globalSettings : self::$settings;
+        foreach ($settings as $settingName => $settingType) {
             $this->_data[$settingName] = $this->plugin->getSetting($this->contextId, $settingName);
         }
-        if (empty($this->_data['seriesCode'])) {
+        if (!$this->isGlobalContext() && empty($this->_data['seriesCode'])) {
             $this->_data['seriesCode'] = $this->generateSeriesCode();
+        }
+        if ($this->isGlobalContext() && empty($this->_data['globalJournals'])) {
+            $this->_data['globalJournals'] = '{}';
         }
     }
 
     public function readInputData()
     {
+        if ($this->isGlobalContext()) {
+            $this->readUserVars(array('archiveCode', 'maintainerEmail'));
+            $this->setData('globalJournals', $this->buildGlobalJournalsSetting());
+            return;
+        }
+
         $this->readUserVars(array_keys(self::$settings));
     }
 
@@ -65,12 +89,21 @@ class RepecSettingsForm extends Form
         $templateMgr->assign('pluginName', $this->plugin->getName());
         $templateMgr->assign('repecBaseUrl', $this->getRepecBaseUrl($request));
         $templateMgr->assign('supportEmailInUse', $this->getSupportEmailInUse($request));
+        $templateMgr->assign('isGlobalContext', $this->isGlobalContext());
+        $templateMgr->assign('globalJournalOptions', $this->getGlobalJournalOptions());
+        $templateMgr->assign('isManagedByGlobalArchive', $this->isManagedByGlobalArchive());
+        $templateMgr->assign('globalArchiveCode', $this->getGlobalArchiveCodeForContext());
         return parent::fetch($request, $template, $display);
     }
 
     public function execute(...$functionArgs)
     {
-        foreach (self::$settings as $settingName => $settingType) {
+        if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
+            return parent::execute(...$functionArgs);
+        }
+
+        $settings = $this->isGlobalContext() ? self::$globalSettings : self::$settings;
+        foreach ($settings as $settingName => $settingType) {
             $value = trim((string) $this->getData($settingName));
             if (in_array($settingName, array('archiveCode', 'seriesCode'))) {
                 $value = strtolower($value);
@@ -91,6 +124,114 @@ class RepecSettingsForm extends Form
         return (bool) preg_match('/^[a-z0-9]{6}$/', strtolower(trim((string) $seriesCode)));
     }
 
+    public function validateGlobalJournals($globalJournals)
+    {
+        $journals = $this->decodeGlobalJournals($globalJournals);
+        $seriesCodes = array();
+        foreach ($journals as $journalId => $seriesCode) {
+            if (!$this->validateSeriesCode($seriesCode)) {
+                return false;
+            }
+            if (isset($seriesCodes[$seriesCode])) {
+                return false;
+            }
+            $seriesCodes[$seriesCode] = true;
+        }
+        return true;
+    }
+
+    private function isGlobalContext()
+    {
+        return (int) $this->contextId === 0;
+    }
+
+    private function buildGlobalJournalsSetting()
+    {
+        $selected = (array) Application::get()->getRequest()->getUserVar('globalJournalIds');
+        $seriesCodes = (array) Application::get()->getRequest()->getUserVar('globalSeriesCodes');
+        $journals = array();
+
+        foreach ($selected as $journalId) {
+            $journalId = (int) $journalId;
+            $seriesCode = isset($seriesCodes[$journalId]) ? strtolower(trim((string) $seriesCodes[$journalId])) : '';
+            if ($journalId) {
+                $journals[$journalId] = $seriesCode;
+            }
+        }
+
+        return json_encode($journals);
+    }
+
+    private function decodeGlobalJournals($value)
+    {
+        $decoded = json_decode((string) $value, true);
+        return is_array($decoded) ? $decoded : array();
+    }
+
+    private function getGlobalJournalOptions()
+    {
+        if (!$this->isGlobalContext()) {
+            return array();
+        }
+
+        $selectedJournals = $this->decodeGlobalJournals($this->getData('globalJournals'));
+        $journalDao = DAORegistry::getDAO('JournalDAO');
+        $journals = $journalDao->getAll(true);
+        $options = array();
+
+        while ($journal = $journals->next()) {
+            $journalId = $journal->getId();
+            $individualSettings = array();
+            foreach (self::$settings as $settingName => $settingType) {
+                $individualSettings[$settingName] = trim((string) $this->plugin->getSetting($journalId, $settingName));
+            }
+            $hasIndividualConfiguration = $this->hasRequiredIndividualSettings($individualSettings);
+            $isSelected = isset($selectedJournals[$journalId]);
+
+            $options[] = array(
+                'id' => $journalId,
+                'name' => $journal->getLocalizedName(),
+                'path' => $journal->getPath(),
+                'selected' => $isSelected,
+                'seriesCode' => $isSelected ? $selectedJournals[$journalId] : $this->generateSeriesCodeForContext($journal),
+                'disabled' => $hasIndividualConfiguration && !$isSelected,
+            );
+        }
+
+        return $options;
+    }
+
+    private function hasRequiredIndividualSettings($settings)
+    {
+        return !empty($settings['archiveCode'])
+            && !empty($settings['seriesCode'])
+            && $this->validateArchiveCode($settings['archiveCode'])
+            && $this->validateSeriesCode($settings['seriesCode']);
+    }
+
+    private function isManagedByGlobalArchive()
+    {
+        if ($this->isGlobalContext()) {
+            return false;
+        }
+
+        return $this->getGlobalArchiveCodeForContext() !== '';
+    }
+
+    private function getGlobalArchiveCodeForContext()
+    {
+        if ($this->isGlobalContext()) {
+            return '';
+        }
+
+        $globalJournals = $this->decodeGlobalJournals($this->plugin->getSetting(0, 'globalJournals'));
+        if (!isset($globalJournals[$this->contextId])) {
+            return '';
+        }
+
+        return trim((string) $this->plugin->getSetting(0, 'archiveCode'));
+    }
+
     private function generateSeriesCode()
     {
         $context = Application::get()->getRequest()->getContext();
@@ -98,6 +239,11 @@ class RepecSettingsForm extends Form
             return '';
         }
 
+        return $this->generateSeriesCodeForContext($context);
+    }
+
+    private function generateSeriesCodeForContext($context)
+    {
         $candidates = array(
             $context->getPath(),
             $context->getData('onlineIssn'),
@@ -146,6 +292,9 @@ class RepecSettingsForm extends Form
             return '';
         }
         $context = $request->getContext();
+        if ($this->isGlobalContext()) {
+            return $request->getDispatcher()->url($request, ROUTE_PAGE, 'index', 'repec', $archiveCode);
+        }
         $contextPath = $context ? $context->getPath() : null;
         return $request->getDispatcher()->url($request, ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
     }

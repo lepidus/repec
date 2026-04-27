@@ -28,6 +28,20 @@ The plugin publishes one ReDIF file for each published issue. The file name is g
 
 The v1 export is limited to published articles in the current journal, as `ReDIF-Article 1.0`. The `File-URL` field points to the public article landing page in OJS.
 
+## Multiple Journals In One Archive
+
+An OJS installation can also publish a single RePEc archive for multiple journals. Configure the plugin in the site context (`index`) and select the journals that belong to the archive. For example, a fictional archive `abc` can publish the fictional journals `Journal One` with series code `journ1` and `Journal Two` with series code `journ2`.
+
+The global archive publishes:
+
+- `/index/repec/{aaa}/`
+- `/index/repec/{aaa}/{aaa}arch.redif`
+- `/index/repec/{aaa}/{aaa}seri.redif`
+- `/index/repec/{aaa}/{seriesCode}/`
+- `/index/repec/{aaa}/{seriesCode}/{issue}.redif`
+
+All selected journals are included in the same `{aaa}seri.redif` file, with one `ReDIF-Series 1.0` template per journal. A journal can use either the global archive or an individual journal archive, but not both.
+
 ## Credits
 
 This plugin was developed by [Lepidus Tecnologia](https://lepidus.com.br/)
