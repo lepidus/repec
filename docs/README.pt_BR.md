@@ -10,6 +10,15 @@ Traduções:
 
 ## Uso
 
+O plugin pode ser usado de duas formas:
+
+- Individualmente, no contexto de cada revista. Cada revista publica seu próprio arquivo RePEc e seu próprio arquivo de série.
+- Globalmente, no contexto do site (`index`). O administrador do OJS configura um arquivo RePEc para a instalação e seleciona apenas as revistas que devem fazer parte desse arquivo.
+
+Esses modos podem coexistir na mesma instalação OJS. Uma revista selecionada para o arquivo global passa a ser gerenciada por esse arquivo global e não pode manter também uma configuração RePEc individual. Revistas não selecionadas para o arquivo global ainda podem usar sua própria configuração RePEc individual.
+
+Para um arquivo individual de revista:
+
 1. Habilite o plugin em uma revista.
 2. Abra as configurações do plugin e informe o código RePEc do arquivo, o código da série e o e-mail opcional do mantenedor.
 3. Acesse a URL pública indicada na configuração do plugin.
@@ -30,7 +39,7 @@ O conteúdo exportado no v1 é limitado a artigos publicados da revista atual, c
 
 ## Várias revistas em um arquivo
 
-Uma instalação OJS também pode publicar um único arquivo RePEc para várias revistas. Configure o plugin no contexto do site (`index`) e selecione as revistas que fazem parte do arquivo. Por exemplo, um arquivo fictício `abc` pode publicar as revistas fictícias `Revista Um`, com código de série `journ1`, e `Revista Dois`, com código de série `journ2`.
+Uma instalação OJS também pode publicar um único arquivo RePEc para várias revistas. Configure o plugin no contexto do site (`index`) e selecione apenas as revistas que fazem parte do arquivo. Por exemplo, um arquivo fictício `abc` pode publicar as revistas fictícias `Revista Um`, com código de série `journ1`, e `Revista Dois`, com código de série `journ2`.
 
 O arquivo global publica:
 
@@ -40,7 +49,7 @@ O arquivo global publica:
 - `/index/repec/{aaa}/{seriesCode}/`
 - `/index/repec/{aaa}/{seriesCode}/{issue}.redif`
 
-Todas as revistas selecionadas são incluídas no mesmo arquivo `{aaa}seri.redif`, com um template `ReDIF-Series 1.0` por revista. Uma revista pode usar o arquivo global ou um arquivo individual da própria revista, mas não ambos.
+Todas as revistas selecionadas são incluídas no mesmo arquivo `{aaa}seri.redif`, com um template `ReDIF-Series 1.0` por revista. Uma revista pode usar o arquivo global ou um arquivo individual da própria revista, mas não ambos. Outras revistas da mesma instalação OJS podem ficar fora do arquivo global e usar arquivos RePEc individuais.
 
 ## Handles RePEc legados
 

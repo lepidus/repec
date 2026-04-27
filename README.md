@@ -10,6 +10,15 @@ Translations:
 
 ## Usage
 
+The plugin can be used in two ways:
+
+- Individually, in each journal context. Each journal publishes its own RePEc archive and its own series file.
+- Globally, in the site context (`index`). The OJS administrator configures one RePEc archive for the installation and selects only the journals that should be included in that archive.
+
+These modes can coexist in the same OJS installation. A journal selected for the global archive is managed by that global archive and cannot also keep an individual RePEc configuration. Journals not selected for the global archive may still use their own individual RePEc configuration.
+
+For an individual journal archive:
+
 1. Enable the plugin for a journal.
 2. Open the plugin settings and enter the RePEc archive code, the series code, and the optional maintainer email.
 3. Access the public URL shown in the plugin settings.
@@ -30,7 +39,7 @@ The v1 export is limited to published articles in the current journal, as `ReDIF
 
 ## Multiple Journals In One Archive
 
-An OJS installation can also publish a single RePEc archive for multiple journals. Configure the plugin in the site context (`index`) and select the journals that belong to the archive. For example, a fictional archive `abc` can publish the fictional journals `Journal One` with series code `journ1` and `Journal Two` with series code `journ2`.
+An OJS installation can also publish a single RePEc archive for multiple journals. Configure the plugin in the site context (`index`) and select only the journals that belong to the archive. For example, a fictional archive `abc` can publish the fictional journals `Journal One` with series code `journ1` and `Journal Two` with series code `journ2`.
 
 The global archive publishes:
 
@@ -40,7 +49,7 @@ The global archive publishes:
 - `/index/repec/{aaa}/{seriesCode}/`
 - `/index/repec/{aaa}/{seriesCode}/{issue}.redif`
 
-All selected journals are included in the same `{aaa}seri.redif` file, with one `ReDIF-Series 1.0` template per journal. A journal can use either the global archive or an individual journal archive, but not both.
+All selected journals are included in the same `{aaa}seri.redif` file, with one `ReDIF-Series 1.0` template per journal. A journal can use either the global archive or an individual journal archive, but not both. Other journals in the same OJS installation can remain outside the global archive and use individual RePEc archives.
 
 ## Legacy RePEc Handles
 
