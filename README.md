@@ -42,6 +42,19 @@ The global archive publishes:
 
 All selected journals are included in the same `{aaa}seri.redif` file, with one `ReDIF-Series 1.0` template per journal. A journal can use either the global archive or an individual journal archive, but not both.
 
+## Legacy RePEc Handles
+
+If a journal already has article handles published by another workflow, import a JSON file in the journal settings to preserve those handles. The JSON must be an object where each key is the OJS `submission_id` and each value is the full legacy RePEc handle:
+
+```json
+{
+  "123": "RePEc:abc:journ1:a:old123",
+  "456": "RePEc:abc:journ1:a:old456"
+}
+```
+
+Legacy handles are configured per journal. They are also applied when the journal is published through a global RePEc archive.
+
 ## Credits
 
 This plugin was developed by [Lepidus Tecnologia](https://lepidus.com.br/)

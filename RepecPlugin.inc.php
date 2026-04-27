@@ -103,6 +103,22 @@ class RepecPlugin extends GenericPlugin
                     $form->initData();
                 }
                 return new JSONMessage(true, $form->fetch($request));
+
+            case 'downloadLegacyHandles':
+                $context = $request->getContext();
+                if (!$context) {
+                    return parent::manage($args, $request);
+                }
+
+                $contents = trim((string) $this->getSetting($context->getId(), 'legacyHandles'));
+                if ($contents === '') {
+                    $contents = "{}\n";
+                }
+
+                header('Content-Type: application/json; charset=UTF-8');
+                header('Content-Disposition: attachment; filename="repec-legacy-handles-' . $context->getPath() . '.json"');
+                echo $contents;
+                exit();
         }
 
         return parent::manage($args, $request);

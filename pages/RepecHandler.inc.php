@@ -11,6 +11,7 @@
 
 import('classes.handler.Handler');
 import('plugins.generic.repec.classes.RepecFormatter');
+import('plugins.generic.repec.classes.RepecLegacyHandleMap');
 import('plugins.generic.repec.classes.RepecSettingsForm');
 
 class RepecHandler extends Handler
@@ -117,7 +118,8 @@ class RepecHandler extends Handler
                 if (count($path) === 3) {
                     $issueFileNames = $this->getIssueFileNames($series['context']);
                     if (isset($issueFileNames[$path[2]])) {
-                        $articleSettings = $settings;
+                        $articleSettings = $this->getSettings($plugin, $series['context'], $request);
+                        $articleSettings['archiveCode'] = $settings['archiveCode'];
                         $articleSettings['seriesCode'] = $series['seriesCode'];
                         $this->sendRedif($this->getFormatter()->formatArticles($this->getArticlesData($request, $series['context'], $articleSettings, $issueFileNames[$path[2]])));
                     }
@@ -135,6 +137,7 @@ class RepecHandler extends Handler
             $settings[$settingName] = trim((string) $plugin->getSetting($context->getId(), $settingName));
         }
         $settings['providerInstitution'] = '';
+        $settings['legacyHandles'] = $this->getLegacyHandleMapParser()->decode($settings['legacyHandles']);
         $settings['archiveCode'] = strtolower($settings['archiveCode']);
         $settings['seriesCode'] = strtolower($settings['seriesCode']);
         if (empty($settings['archiveName'])) {
@@ -361,6 +364,10 @@ class RepecHandler extends Handler
 
     private function getArticleHandle($settings, $submission, $issue, $year)
     {
+        if (isset($settings['legacyHandles'][$submission->getId()])) {
+            return $settings['legacyHandles'][$submission->getId()];
+        }
+
         $parts = array('RePEc', $settings['archiveCode'], $settings['seriesCode']);
 
         if ($issue && $issue->getVolume()) {
@@ -432,6 +439,11 @@ class RepecHandler extends Handler
         $value = strtolower(trim($value));
         $value = preg_replace('/[^a-z0-9]+/', '-', $value);
         return trim($value, '-');
+    }
+
+    private function getLegacyHandleMapParser()
+    {
+        return new RepecLegacyHandleMap();
     }
 
     private function getArticleFiles($request, $context, $submission, $publication)

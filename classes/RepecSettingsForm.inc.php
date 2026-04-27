@@ -15,6 +15,7 @@ import('lib.pkp.classes.form.validation.FormValidatorCSRF');
 import('lib.pkp.classes.form.validation.FormValidatorCustom');
 import('lib.pkp.classes.form.validation.FormValidatorEmail');
 import('lib.pkp.classes.form.validation.FormValidatorPost');
+import('plugins.generic.repec.classes.RepecLegacyHandleMap');
 
 class RepecSettingsForm extends Form
 {
@@ -25,6 +26,7 @@ class RepecSettingsForm extends Form
         'archiveCode' => 'string',
         'seriesCode' => 'string',
         'maintainerEmail' => 'string',
+        'legacyHandles' => 'string',
     );
 
     public static $globalSettings = array(
@@ -32,6 +34,8 @@ class RepecSettingsForm extends Form
         'maintainerEmail' => 'string',
         'globalJournals' => 'string',
     );
+
+    private $legacyHandlesUploadError = null;
 
     public function __construct($plugin, $contextId)
     {
@@ -42,21 +46,25 @@ class RepecSettingsForm extends Form
 
         $this->addCheck(new FormValidatorPost($this));
         $this->addCheck(new FormValidatorCSRF($this));
-        if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
-            return;
-        }
 
-        $this->addCheck(new FormValidator($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeRequired'));
-        $this->addCheck(new FormValidatorCustom($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeInvalid', array($this, 'validateArchiveCode')));
-        if (!$this->isGlobalContext()) {
+        if ($this->isGlobalContext() || !$this->isManagedByGlobalArchive()) {
+            $this->addCheck(new FormValidator($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeRequired'));
+            $this->addCheck(new FormValidatorCustom($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeInvalid', array($this, 'validateArchiveCode')));
+        }
+        if (!$this->isGlobalContext() && !$this->isManagedByGlobalArchive()) {
             $this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
             $this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
-        } else {
+        } elseif ($this->isGlobalContext()) {
             $this->addCheck(new FormValidatorCustom($this, 'globalJournals', 'required', 'plugins.generic.repec.settings.globalJournalsInvalid', array($this, 'validateGlobalJournals')));
             $this->addCheck(new FormValidator($this, 'maintainerEmail', 'required', 'plugins.generic.repec.settings.maintainerEmailRequired'));
         }
-        $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
-        $this->addCheck(new FormValidatorCustom($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid', array($this, 'validateMaintainerEmail')));
+        if (!$this->isManagedByGlobalArchive()) {
+            $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
+            $this->addCheck(new FormValidatorCustom($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid', array($this, 'validateMaintainerEmail')));
+        }
+        if (!$this->isGlobalContext()) {
+            $this->addCheck(new FormValidatorCustom($this, 'legacyHandles', 'optional', 'plugins.generic.repec.settings.legacyHandlesInvalid', array($this, 'validateLegacyHandlesUpload')));
+        }
     }
 
     public function initData()
@@ -83,6 +91,7 @@ class RepecSettingsForm extends Form
         }
 
         $this->readUserVars(array_keys(self::$settings));
+        $this->readLegacyHandlesInput();
     }
 
     public function fetch($request, $template = null, $display = false)
@@ -95,20 +104,24 @@ class RepecSettingsForm extends Form
         $templateMgr->assign('globalJournalOptions', $this->getGlobalJournalOptions());
         $templateMgr->assign('isManagedByGlobalArchive', $this->isManagedByGlobalArchive());
         $templateMgr->assign('globalArchiveCode', $this->getGlobalArchiveCodeForContext());
+        $templateMgr->assign('legacyHandlesCount', count($this->getLegacyHandles()));
+        $templateMgr->assign('legacyHandlesDownloadUrl', $this->getLegacyHandlesDownloadUrl($request));
         return parent::fetch($request, $template, $display);
     }
 
     public function execute(...$functionArgs)
     {
-        if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
-            return parent::execute(...$functionArgs);
-        }
-
         $settings = $this->isGlobalContext() ? self::$globalSettings : self::$settings;
+        if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
+            $settings = array('legacyHandles' => 'string');
+        }
         foreach ($settings as $settingName => $settingType) {
             $value = trim((string) $this->getData($settingName));
             if (in_array($settingName, array('archiveCode', 'seriesCode'))) {
                 $value = strtolower($value);
+            }
+            if ($settingName === 'legacyHandles') {
+                $value = $this->normalizeLegacyHandlesSetting($value);
             }
             $this->plugin->updateSetting($this->contextId, $settingName, $value, $settingType);
         }
@@ -151,6 +164,11 @@ class RepecSettingsForm extends Form
         return filter_var(trim((string) $email), FILTER_VALIDATE_EMAIL) !== false;
     }
 
+    public function validateLegacyHandlesUpload()
+    {
+        return $this->legacyHandlesUploadError === null;
+    }
+
     private function isGlobalContext()
     {
         return (int) $this->contextId === 0;
@@ -171,6 +189,28 @@ class RepecSettingsForm extends Form
         }
 
         return json_encode($journals);
+    }
+
+    private function readLegacyHandlesInput()
+    {
+        $this->setData('legacyHandles', $this->plugin->getSetting($this->contextId, 'legacyHandles'));
+        $legacyHandlesJson = trim((string) Application::get()->getRequest()->getUserVar('legacyHandlesJson'));
+        if ($legacyHandlesJson === '') {
+            return;
+        }
+
+        list($handles, $error) = $this->getLegacyHandleMapParser()->parseJson($legacyHandlesJson);
+        if ($error) {
+            $this->legacyHandlesUploadError = $error;
+            return;
+        }
+
+        $this->setData('legacyHandles', $this->getLegacyHandleMapParser()->encode($handles));
+    }
+
+    private function normalizeLegacyHandlesSetting($value)
+    {
+        return $this->getLegacyHandleMapParser()->encode($this->getLegacyHandleMapParser()->decode($value));
     }
 
     private function decodeGlobalJournals($value)
@@ -308,6 +348,33 @@ class RepecSettingsForm extends Form
         }
         $contextPath = $context ? $context->getPath() : null;
         return $request->getDispatcher()->url($request, ROUTE_PAGE, $contextPath, 'repec', $archiveCode);
+    }
+
+    private function getLegacyHandles()
+    {
+        if ($this->isGlobalContext()) {
+            return array();
+        }
+
+        return $this->getLegacyHandleMapParser()->decode($this->getData('legacyHandles'));
+    }
+
+    private function getLegacyHandlesDownloadUrl($request)
+    {
+        if ($this->isGlobalContext() || empty($this->getLegacyHandles())) {
+            return '';
+        }
+
+        return $request->getRouter()->url($request, null, null, 'manage', null, array(
+            'verb' => 'downloadLegacyHandles',
+            'plugin' => $this->plugin->getName(),
+            'category' => 'generic',
+        ));
+    }
+
+    private function getLegacyHandleMapParser()
+    {
+        return new RepecLegacyHandleMap();
     }
 
     private function getSupportEmailInUse($request)

@@ -42,6 +42,19 @@ O arquivo global publica:
 
 Todas as revistas selecionadas são incluídas no mesmo arquivo `{aaa}seri.redif`, com um template `ReDIF-Series 1.0` por revista. Uma revista pode usar o arquivo global ou um arquivo individual da própria revista, mas não ambos.
 
+## Handles RePEc legados
+
+Se uma revista já tem handles de artigos publicados por outro fluxo, importe um arquivo JSON nas configurações da revista para preservar esses handles. O JSON deve ser um objeto em que cada chave é o `submission_id` do OJS e cada valor é o handle RePEc legado completo:
+
+```json
+{
+  "123": "RePEc:abc:journ1:a:old123",
+  "456": "RePEc:abc:journ1:a:old456"
+}
+```
+
+Os handles legados são configurados por revista. Eles também são aplicados quando a revista é publicada por um arquivo RePEc global.
+
 ## Créditos
 
 Este plugin foi desenvolvido por [Lepidus Tecnologia](https://lepidus.com.br/)

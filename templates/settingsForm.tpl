@@ -6,6 +6,18 @@
 <script>
 	$(function() {ldelim}
 		$('#repecSettingsForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+		$('#legacyHandlesFile').on('change', function() {ldelim}
+			var file = this.files && this.files[0];
+			if (!file) {ldelim}
+				$('#legacyHandlesJson').val('');
+				return;
+			{rdelim}
+			var reader = new FileReader();
+			reader.onload = function(event) {ldelim}
+				$('#legacyHandlesJson').val(event.target.result);
+			{rdelim};
+			reader.readAsText(file);
+		{rdelim});
 	{rdelim});
 </script>
 <style>
@@ -42,7 +54,7 @@
 	}
 </style>
 
-<form class="pkp_form" id="repecSettingsForm" method="post" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
+<form class="pkp_form" id="repecSettingsForm" method="post" enctype="multipart/form-data" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
 	{csrf}
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="repecSettingsFormNotification"}
 
@@ -107,7 +119,24 @@
 			{/if}
 		{/if}
 
-		{if !$isManagedByGlobalArchive}
+		{if !$isGlobalContext}
+			{fbvFormSection title="plugins.generic.repec.settings.legacyHandles"}
+				<p>{translate key="plugins.generic.repec.settings.legacyHandlesDescription"}</p>
+				<p>{translate key="plugins.generic.repec.settings.legacyHandlesCount" count=$legacyHandlesCount}</p>
+				{if $legacyHandlesDownloadUrl}
+					<p>
+						<a href="{$legacyHandlesDownloadUrl|escape}">{translate key="plugins.generic.repec.settings.legacyHandlesDownload"}</a>
+					</p>
+				{/if}
+				<div class="repecSettingsFormField">
+					<label for="legacyHandlesFile">{translate key="plugins.generic.repec.settings.legacyHandlesFile"}</label>
+					<input type="file" id="legacyHandlesFile" name="legacyHandlesFile" accept="application/json,.json">
+					<textarea id="legacyHandlesJson" name="legacyHandlesJson" style="display: none;"></textarea>
+				</div>
+			{/fbvFormSection}
+		{/if}
+
+		{if !$isManagedByGlobalArchive || !$isGlobalContext}
 			{fbvFormButtons submitText="common.save"}
 		{/if}
 	{/fbvFormArea}

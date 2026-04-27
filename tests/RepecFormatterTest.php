@@ -2,6 +2,8 @@
 
 import('lib.pkp.tests.PKPTestCase');
 import('plugins.generic.repec.classes.RepecFormatter');
+import('plugins.generic.repec.classes.RepecLegacyHandleMap');
+import('plugins.generic.repec.pages.RepecHandler');
 
 class RepecFormatterTest extends PKPTestCase
 {
@@ -110,5 +112,55 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertSame(2, substr_count($output, "Template-Type: ReDIF-Series 1.0\n"));
         $this->assertStringContainsString("Handle: RePEc:abc:journ1\n", $output);
         $this->assertStringContainsString("Handle: RePEc:abc:journ2\n", $output);
+    }
+
+    public function testParsesLegacyHandleMapJson()
+    {
+        $parser = new RepecLegacyHandleMap();
+        list($handles, $error) = $parser->parseJson('{"456":"RePEc:abc:journl:a:old456","123":"RePEc:abc:journl:a:old123"}');
+
+        $this->assertNull($error);
+        $this->assertSame(array(
+            '123' => 'RePEc:abc:journl:a:old123',
+            '456' => 'RePEc:abc:journl:a:old456',
+        ), $handles);
+    }
+
+    public function testRejectsInvalidLegacyHandleMapJson()
+    {
+        $parser = new RepecLegacyHandleMap();
+
+        $this->assertNotNull($parser->parseJson('[]')[1]);
+        $this->assertNotNull($parser->parseJson('{"abc":"RePEc:abc:journl:a:old"}')[1]);
+        $this->assertNotNull($parser->parseJson('{"123":"abc:journl:a:old"}')[1]);
+        $this->assertNotNull($parser->parseJson('{}')[1]);
+    }
+
+    public function testArticleHandleUsesLegacyHandleWhenConfigured()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+        $submission = new class {
+            public function getId()
+            {
+                return 123;
+            }
+        };
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'abc',
+            'seriesCode' => 'journ1',
+            'legacyHandles' => array('123' => 'RePEc:abc:journ1:a:old123'),
+        ), $submission, null, '2026');
+
+        $this->assertSame('RePEc:abc:journ1:a:old123', $handle);
+    }
+
+    public function testEncodesEmptyLegacyHandleMapAsJsonObject()
+    {
+        $parser = new RepecLegacyHandleMap();
+
+        $this->assertSame("{}\n", $parser->encode(array()));
     }
 }

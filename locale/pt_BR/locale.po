@@ -124,3 +124,33 @@ msgstr "Selecione pelo menos uma revista e informe um código de série único c
 
 msgid "plugins.generic.repec.settings.managedByGlobalArchive"
 msgstr "Esta revista está configurada no arquivo RePEc global {$archiveCode}. As configurações RePEc individuais estão desabilitadas para esta revista."
+
+msgid "plugins.generic.repec.settings.legacyHandles"
+msgstr "Handles RePEc legados"
+
+msgid "plugins.generic.repec.settings.legacyHandlesDescription"
+msgstr "Opcional. Importe um objeto JSON que mapeia IDs de submissão do OJS para handles RePEc publicados anteriormente. Esses handles sobrescrevem os handles gerados pelo plugin para esta revista."
+
+msgid "plugins.generic.repec.settings.legacyHandlesCount"
+msgstr "Handles legados configurados: {$count}."
+
+msgid "plugins.generic.repec.settings.legacyHandlesDownload"
+msgstr "Baixar JSON atual"
+
+msgid "plugins.generic.repec.settings.legacyHandlesFile"
+msgstr "Importar arquivo JSON"
+
+msgid "plugins.generic.repec.settings.legacyHandlesInvalid"
+msgstr "Importe um objeto JSON válido usando IDs de submissão do OJS como chaves e handles RePEc completos como valores."
+
+msgid "plugins.generic.repec.settings.legacyHandlesJsonInvalid"
+msgstr "Importe um objeto JSON."
+
+msgid "plugins.generic.repec.settings.legacyHandlesIdInvalid"
+msgstr "Cada chave de handle legado deve ser um ID de submissão positivo do OJS."
+
+msgid "plugins.generic.repec.settings.legacyHandlesHandleInvalid"
+msgstr "Cada valor de handle legado deve ser um handle RePEc completo."
+
+msgid "plugins.generic.repec.settings.legacyHandlesEmpty"
+msgstr "O JSON de handles legados deve conter pelo menos um handle."
