@@ -62,9 +62,9 @@ extract_settings_form_value() {
 	' "$body_file" "$1"
 }
 
-curl -sS -D "$headers_file" -o "$body_file" "${base_url%/}/index/repec/"
+curl -sS -L -D "$headers_file" -o "$body_file" "${base_url%/}/index/repec/"
 
-if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+if ! grep -q ' 200 ' "$headers_file"; then
 	fail_with_response "Expected /index/repec/ to return HTTP 200"
 fi
 
@@ -77,18 +77,23 @@ assert_no_php_errors "/index/repec/"
 echo "OJS 3.4 RePEc smoke passed: ${base_url%/}/index/repec/"
 
 login_page="${base_url%/}/${context_path}/login"
-login_post="${base_url%/}/${context_path}/login/signIn"
 
-curl -sS -c "$cookie_jar" -D "$headers_file" -o "$body_file" "$login_page"
+curl -sS -L -c "$cookie_jar" -D "$headers_file" -o "$body_file" "$login_page"
 
-if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+if ! grep -q ' 200 ' "$headers_file"; then
 	fail_with_response "Expected OJS login page to return HTTP 200"
 fi
 
 csrf_token="$(sed -n 's/.*name="csrfToken" value="\([^"]*\)".*/\1/p' "$body_file" | head -n 1)"
+login_post="$(sed -n 's/.*<form[^>]*id="login"[^>]*action="\([^"]*\)".*/\1/p' "$body_file" | head -n 1)"
+login_post="$(php -r 'echo html_entity_decode($argv[1], ENT_QUOTES, "UTF-8");' "$login_post")"
 
 if [ -z "$csrf_token" ]; then
 	fail_with_response "Could not find csrfToken in OJS login page"
+fi
+
+if [ -z "$login_post" ]; then
+	fail_with_response "Could not find login form action in OJS login page"
 fi
 
 curl -sS -L -b "$cookie_jar" -c "$cookie_jar" -D "$headers_file" -o "$body_file" \
@@ -189,9 +194,9 @@ echo "OJS 3.4 RePEc configured archive smoke passed: $journal_repec_url"
 
 series_repec_url="${base_url%/}/${context_path}/repec/${test_archive_code}/${test_series_code}"
 
-curl -sS -D "$headers_file" -o "$body_file" "$series_repec_url"
+curl -sS -L -D "$headers_file" -o "$body_file" "$series_repec_url"
 
-if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+if ! grep -q ' 200 ' "$headers_file"; then
 	fail_with_response "Expected RePEc series endpoint to return HTTP 200"
 fi
 
@@ -203,9 +208,9 @@ assert_no_php_errors "RePEc series endpoint"
 
 issue_repec_url="${series_repec_url}/${test_issue_file}"
 
-curl -sS -D "$headers_file" -o "$body_file" "$issue_repec_url"
+curl -sS -L -D "$headers_file" -o "$body_file" "$issue_repec_url"
 
-if ! head -n 1 "$headers_file" | grep -q ' 200 '; then
+if ! grep -q ' 200 ' "$headers_file"; then
 	fail_with_response "Expected RePEc issue file endpoint to return HTTP 200"
 fi
 

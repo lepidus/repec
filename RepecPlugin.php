@@ -135,11 +135,13 @@ class RepecPlugin extends GenericPlugin
         $op = &$params[1];
         $handler = &$params[3];
 
-        if ($page !== 'repec') {
+        $localePattern = '/^[a-z]{2}(?:_[A-Z]{2})?$/';
+        if ($page !== 'repec' && !($op === 'repec' && preg_match($localePattern, (string) $page))) {
             return false;
         }
 
-        $op = ROUTER_DEFAULT_OP;
+        $page = 'repec';
+        $op = 'index';
         $handler = new RepecHandler();
         return true;
     }

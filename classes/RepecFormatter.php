@@ -131,11 +131,27 @@ class RepecFormatter
     {
         if (is_array($value)) {
             $separator = $field === 'Keywords' ? '; ' : ', ';
-            $value = implode($separator, array_filter(array_map('trim', $value)));
+            $value = implode($separator, $this->flattenValues($value));
         }
         $value = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
         $value = preg_replace('/[ \t]+/', ' ', $value);
         $value = preg_replace('/ *(\r\n|\r|\n) */', "\n", $value);
         return trim($value);
+    }
+
+    private function flattenValues($values)
+    {
+        $flat = array();
+        foreach ($values as $value) {
+            if (is_array($value)) {
+                $flat = array_merge($flat, $this->flattenValues($value));
+                continue;
+            }
+            $value = trim((string) $value);
+            if ($value !== '') {
+                $flat[] = $value;
+            }
+        }
+        return $flat;
     }
 }

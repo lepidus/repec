@@ -22,6 +22,7 @@ use APP\submission\Submission;
 use PKP\config\Config;
 use PKP\db\DAORegistry;
 use PKP\plugins\PluginRegistry;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RepecHandler extends Handler
 {
@@ -30,7 +31,7 @@ class RepecHandler extends Handler
         $plugin = PluginRegistry::getPlugin('generic', 'repecplugin');
         $context = $request->getContext();
         if (!$plugin) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if (!$context) {
@@ -38,16 +39,16 @@ class RepecHandler extends Handler
         }
 
         if (!$plugin->getEnabled($context->getId())) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if ($this->getGlobalSeriesCodeForContext($plugin, $context)) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         $settings = $this->getSettings($plugin, $context, $request);
         if (!$this->hasRequiredSettings($settings)) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         $path = $this->getRepecPath($request, $args);
@@ -56,7 +57,7 @@ class RepecHandler extends Handler
         }
 
         if ($path[0] !== $settings['archiveCode']) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if (count($path) === 1) {
@@ -82,7 +83,7 @@ class RepecHandler extends Handler
             }
         }
 
-        $request->getDispatcher()->handle404();
+        $this->notFound();
     }
 
     private function handleGlobalArchive($plugin, $request, $args)
@@ -95,15 +96,15 @@ class RepecHandler extends Handler
         }
 
         if (!$plugin->getEnabled(0)) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if (!$this->hasRequiredGlobalSettings($settings)) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if ($path[0] !== $settings['archiveCode']) {
-            $request->getDispatcher()->handle404();
+            $this->notFound();
         }
 
         if (count($path) === 1) {
@@ -136,7 +137,12 @@ class RepecHandler extends Handler
             }
         }
 
-        $request->getDispatcher()->handle404();
+        $this->notFound();
+    }
+
+    private function notFound()
+    {
+        throw new NotFoundHttpException();
     }
 
     private function getSettings($plugin, $context, $request)
@@ -262,7 +268,7 @@ class RepecHandler extends Handler
     {
         $path = array();
         $op = $request->getRequestedOp();
-        if ($op && $op !== ROUTER_DEFAULT_OP) {
+        if ($op && !in_array($op, array('index', 'repec'))) {
             $path[] = $op;
         }
         foreach ($args as $arg) {
@@ -470,7 +476,7 @@ class RepecHandler extends Handler
 
         $pdfGalley = $this->getPdfGalley($publication->getData('galleys'));
         if ($pdfGalley) {
-            $pdfUrl = $pdfGalley->getRemoteURL();
+            $pdfUrl = method_exists($pdfGalley, 'getRemoteURL') ? $pdfGalley->getRemoteURL() : $pdfGalley->getData('urlRemote');
             if (!$pdfUrl) {
                 $pdfUrl = $request->url($context->getPath(), 'article', 'download', array($submission->getBestId(), $pdfGalley->getBestGalleyId()));
             }

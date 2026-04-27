@@ -81,6 +81,28 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertStringContainsString("Handle: RePEc:abc:journl:a:10\n", $output);
     }
 
+    public function testFormatsNestedKeywordValues()
+    {
+        $formatter = new RepecFormatter();
+        $output = $formatter->formatArticles(array(array(
+            'authors' => array(array('name' => 'Ana Silva', 'affiliation' => '')),
+            'title' => 'Economia regional',
+            'abstract' => '',
+            'keywords' => array(array('economia', 'região'), array('desenvolvimento')),
+            'journal' => 'Revista Exemplo',
+            'pages' => '',
+            'volume' => '',
+            'issue' => '',
+            'year' => '2026',
+            'month' => '',
+            'doi' => '',
+            'files' => array(),
+            'handle' => 'RePEc:abc:journl:id:10',
+        )));
+
+        $this->assertStringContainsString("Keywords: economia; região; desenvolvimento\n", $output);
+    }
+
     public function testArticleTemplateOmitsEmptyOptionalFieldsAndHtmlEscapedUrls()
     {
         $formatter = new RepecFormatter();
