@@ -56,6 +56,7 @@ class RepecSettingsForm extends Form
             $this->addCheck(new FormValidator($this, 'maintainerEmail', 'required', 'plugins.generic.repec.settings.maintainerEmailRequired'));
         }
         $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
+        $this->addCheck(new FormValidatorCustom($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid', array($this, 'validateMaintainerEmail')));
     }
 
     public function initData()
@@ -143,6 +144,11 @@ class RepecSettingsForm extends Form
             $seriesCodes[$seriesCode] = true;
         }
         return true;
+    }
+
+    public function validateMaintainerEmail($email)
+    {
+        return filter_var(trim((string) $email), FILTER_VALIDATE_EMAIL) !== false;
     }
 
     private function isGlobalContext()
