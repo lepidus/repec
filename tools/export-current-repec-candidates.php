@@ -58,62 +58,50 @@ $columns = array(
 echo implode("\t", $columns) . "\n";
 
 $preferredLocale = getPreferredLocale($context);
-$count = 100;
-$offset = 0;
-do {
-    $submissions = Services::get('submission')->getMany(array(
-        'contextId' => $context->getId(),
-        'status' => STATUS_PUBLISHED,
-        'count' => $count,
-        'offset' => $offset,
-        'orderBy' => 'id',
-        'orderDirection' => 'ASC',
-    ));
+$submissions = Services::get('submission')->getMany(array(
+    'contextId' => $context->getId(),
+    'status' => STATUS_PUBLISHED,
+));
 
-    $seen = 0;
-    foreach ($submissions as $submission) {
-        $seen++;
-        $publication = $submission->getCurrentPublication();
-        if (!$publication) {
-            continue;
-        }
-
-        $issue = getIssue($context, $publication, $submission);
-        $datePublished = (string) $publication->getData('datePublished');
-        $year = $datePublished ? date('Y', strtotime($datePublished)) : '';
-        $month = $datePublished ? date('F', strtotime($datePublished)) : '';
-        if ($issue) {
-            $year = $issue->getYear() ?: $year;
-            if ($issue->getDatePublished()) {
-                $month = date('F', strtotime($issue->getDatePublished()));
-            }
-        }
-
-        $authors = getAuthors((array) $publication->getData('authors'), $preferredLocale);
-        $bestId = $submission->getBestId();
-        $row = array(
-            $submission->getId(),
-            $bestId,
-            localizedValue($publication->getData('title'), $preferredLocale),
-            isset($authors[0]) ? $authors[0] : '',
-            implode('; ', $authors),
-            $year,
-            $month,
-            $issue ? $issue->getVolume() : '',
-            $issue ? $issue->getNumber() : '',
-            $publication->getData('pages'),
-            $publication->getStoredPubId('doi') ?: $submission->getStoredPubId('doi'),
-            $datePublished,
-            $issue ? $issue->getId() : '',
-            $issue ? getIssueIdentification($issue) : '',
-            buildArticleUrl($context, $bestId),
-        );
-
-        echo implode("\t", array_map('tsvValue', $row)) . "\n";
+foreach ($submissions as $submission) {
+    $publication = $submission->getCurrentPublication();
+    if (!$publication) {
+        continue;
     }
 
-    $offset += $count;
-} while ($seen === $count);
+    $issue = getIssue($context, $publication, $submission);
+    $datePublished = (string) $publication->getData('datePublished');
+    $year = $datePublished ? date('Y', strtotime($datePublished)) : '';
+    $month = $datePublished ? date('F', strtotime($datePublished)) : '';
+    if ($issue) {
+        $year = $issue->getYear() ?: $year;
+        if ($issue->getDatePublished()) {
+            $month = date('F', strtotime($issue->getDatePublished()));
+        }
+    }
+
+    $authors = getAuthors((array) $publication->getData('authors'), $preferredLocale);
+    $bestId = $submission->getBestId();
+    $row = array(
+        $submission->getId(),
+        $bestId,
+        localizedValue($publication->getData('title'), $preferredLocale),
+        isset($authors[0]) ? $authors[0] : '',
+        implode('; ', $authors),
+        $year,
+        $month,
+        $issue ? $issue->getVolume() : '',
+        $issue ? $issue->getNumber() : '',
+        $publication->getData('pages'),
+        $publication->getStoredPubId('doi') ?: $submission->getStoredPubId('doi'),
+        $datePublished,
+        $issue ? $issue->getId() : '',
+        $issue ? getIssueIdentification($issue) : '',
+        buildArticleUrl($context, $bestId),
+    );
+
+    echo implode("\t", array_map('tsvValue', $row)) . "\n";
+}
 
 function getIssue($context, $publication, $submission)
 {
