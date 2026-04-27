@@ -141,7 +141,7 @@ class RepecFormatterTest extends PKPTestCase
         $handler = new RepecHandler();
         $method = new ReflectionMethod($handler, 'getArticleHandle');
         $method->setAccessible(true);
-        $submission = new class {
+        $submission = new class() {
             public function getId()
             {
                 return 123;

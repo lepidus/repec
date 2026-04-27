@@ -264,14 +264,22 @@ class RepecHandler extends Handler
 
     private function getArchiveData($request, $context, $settings)
     {
-        $settings['archiveUrl'] = $request->url($context->getPath(), 'repec', $settings['archiveCode']);
+        $settings['archiveUrl'] = $this->ensureDirectoryUrl($request->url($context->getPath(), 'repec', $settings['archiveCode']));
         return $settings;
     }
 
     private function getGlobalArchiveData($request, $settings)
     {
-        $settings['archiveUrl'] = $request->url('index', 'repec', $settings['archiveCode']);
+        $settings['archiveUrl'] = $this->ensureDirectoryUrl($request->url('index', 'repec', $settings['archiveCode']));
         return $settings;
+    }
+
+    private function ensureDirectoryUrl($url)
+    {
+        if (strpos($url, '?') !== false || substr($url, -1) === '/') {
+            return $url;
+        }
+        return $url . '/';
     }
 
     private function getSeriesData($request, $context, $settings)
