@@ -52,6 +52,13 @@
 		margin-left: 1.5rem;
 		max-width: 16rem;
 	}
+
+	#repecSettings #legacyHandlesJson {
+		box-sizing: border-box;
+		font-family: monospace;
+		min-height: 10rem;
+		width: 100%;
+	}
 </style>
 
 <form class="pkp_form" id="repecSettingsForm" method="post" enctype="multipart/form-data" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}">
@@ -131,7 +138,10 @@
 				<div class="repecSettingsFormField">
 					<label for="legacyHandlesFile">{translate key="plugins.generic.repec.settings.legacyHandlesFile"}</label>
 					<input type="file" id="legacyHandlesFile" name="legacyHandlesFile" accept="application/json,.json">
-					<textarea id="legacyHandlesJson" name="legacyHandlesJson" style="display: none;"></textarea>
+				</div>
+				<div class="repecSettingsFormField">
+					<label for="legacyHandlesJson">{translate key="plugins.generic.repec.settings.legacyHandlesJson"}</label>
+					<textarea id="legacyHandlesJson" name="legacyHandlesJson"></textarea>
 				</div>
 			{/fbvFormSection}
 		{/if}

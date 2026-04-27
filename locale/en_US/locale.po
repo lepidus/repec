@@ -140,6 +140,9 @@ msgstr "Download current JSON"
 msgid "plugins.generic.repec.settings.legacyHandlesFile"
 msgstr "Import JSON file"
 
+msgid "plugins.generic.repec.settings.legacyHandlesJson"
+msgstr "JSON content to import"
+
 msgid "plugins.generic.repec.settings.legacyHandlesInvalid"
 msgstr "Import a valid JSON object using OJS submission IDs as keys and full RePEc handles as values."
 
