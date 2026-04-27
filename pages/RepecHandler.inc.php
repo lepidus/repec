@@ -73,17 +73,22 @@ class RepecHandler extends Handler
 
     private function handleGlobalArchive($plugin, $request, $args)
     {
+        $path = $this->getRepecPath($request, $args);
+
+        $settings = $this->getGlobalSettings($plugin, $request);
+        if (empty($path)) {
+            $this->sendSiteDirectoryIndex($request, $plugin, $settings);
+        }
+
         if (!$plugin->getEnabled(0)) {
             $request->getDispatcher()->handle404();
         }
 
-        $settings = $this->getGlobalSettings($plugin, $request);
         if (!$this->hasRequiredGlobalSettings($settings)) {
             $request->getDispatcher()->handle404();
         }
 
-        $path = $this->getRepecPath($request, $args);
-        if (empty($path) || $path[0] !== $settings['archiveCode']) {
+        if ($path[0] !== $settings['archiveCode']) {
             $request->getDispatcher()->handle404();
         }
 
@@ -206,7 +211,8 @@ class RepecHandler extends Handler
             }
         }
         return preg_match('/^[a-z]{3}$/', $settings['archiveCode'])
-            && preg_match('/^[a-z0-9]{6}$/', $settings['seriesCode']);
+            && preg_match('/^[a-z0-9]{6}$/', $settings['seriesCode'])
+            && $this->isValidEmail($settings['maintainerEmail']);
     }
 
     private function hasRequiredGlobalSettings($settings)
@@ -215,6 +221,9 @@ class RepecHandler extends Handler
             return false;
         }
         if (!preg_match('/^[a-z]{3}$/', $settings['archiveCode'])) {
+            return false;
+        }
+        if (!$this->isValidEmail($settings['maintainerEmail'])) {
             return false;
         }
 
@@ -226,6 +235,11 @@ class RepecHandler extends Handler
             $seriesCodes[$seriesCode] = true;
         }
         return true;
+    }
+
+    private function isValidEmail($email)
+    {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     private function getRepecPath($request, $args)
@@ -585,6 +599,66 @@ class RepecHandler extends Handler
         }
         echo '</ul></body></html>';
         exit();
+    }
+
+    private function sendSiteDirectoryIndex($request, $plugin, $globalSettings)
+    {
+        header('Content-Type: text/html; charset=UTF-8');
+
+        echo '<!doctype html><html><head><meta charset="utf-8"><title>RePEc archives</title></head><body>';
+        echo '<h1>RePEc archives</h1>';
+
+        if ($plugin->getEnabled(0) && $this->hasRequiredGlobalSettings($globalSettings)) {
+            $this->printArchiveLinks($request, 'index', $globalSettings, $this->getGlobalSeries($globalSettings));
+        }
+
+        $journalDao = DAORegistry::getDAO('JournalDAO');
+        $journals = $journalDao->getAll(true);
+        while ($context = $journals->next()) {
+            if (!$plugin->getEnabled($context->getId()) || $this->getGlobalSeriesCodeForContext($plugin, $context)) {
+                continue;
+            }
+
+            $settings = $this->getSettings($plugin, $context, $request);
+            if (!$this->hasRequiredSettings($settings)) {
+                continue;
+            }
+
+            $this->printArchiveLinks($request, $context->getPath(), $settings, array(array(
+                'context' => $context,
+                'seriesCode' => $settings['seriesCode'],
+            )));
+        }
+
+        echo '</body></html>';
+        exit();
+    }
+
+    private function printArchiveLinks($request, $contextPath, $settings, $seriesList)
+    {
+        $archiveCode = htmlspecialchars($settings['archiveCode'], ENT_QUOTES, 'UTF-8');
+        $archiveUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], null, null, null, true);
+        $archiveTemplateUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'arch.redif'), null, null, true);
+        $seriesTemplateUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($settings['archiveCode'] . 'seri.redif'), null, null, true);
+
+        echo '<section>';
+        echo '<h2>RePEc ' . $archiveCode . '</h2>';
+        echo '<ul>';
+        echo '<li><a href="' . htmlspecialchars($archiveUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . '/</a></li>';
+        echo '<li><a href="' . htmlspecialchars($archiveTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'arch.redif</a></li>';
+        echo '<li><a href="' . htmlspecialchars($seriesTemplateUrl, ENT_QUOTES, 'UTF-8') . '">' . $archiveCode . 'seri.redif</a></li>';
+
+        foreach ($seriesList as $series) {
+            $seriesUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($series['seriesCode']), null, null, true);
+            echo '<li><a href="' . htmlspecialchars($seriesUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($series['seriesCode'], ENT_QUOTES, 'UTF-8') . '/</a> - ' . htmlspecialchars($series['context']->getLocalizedName(), ENT_QUOTES, 'UTF-8') . '</li>';
+            foreach ($this->getIssueFileNames($series['context']) as $fileName => $issue) {
+                $issueUrl = $request->url($contextPath, 'repec', $settings['archiveCode'], array($series['seriesCode'], $fileName), null, null, true);
+                echo '<li><a href="' . htmlspecialchars($issueUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($series['seriesCode'] . '/' . $fileName, ENT_QUOTES, 'UTF-8') . '</a></li>';
+            }
+        }
+
+        echo '</ul>';
+        echo '</section>';
     }
 
     private function sendGlobalDirectoryIndex($request, $settings, $level, $issueFileNames = array(), $currentSeriesCode = '')

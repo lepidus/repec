@@ -23,6 +23,13 @@
 		margin: -0.5rem 0 1.1rem;
 	}
 
+	#repecSettings legend,
+	#repecSettings .section h3,
+	#repecSettings .section_title {
+		font-size: 1rem;
+		line-height: 1.35;
+	}
+
 	#repecSettings .repecGlobalJournal {
 		border-bottom: 1px solid #ddd;
 		margin-bottom: 1rem;
@@ -62,7 +69,11 @@
 					</div>
 				{/if}
 				<div class="repecSettingsFormField">
-					{fbvElement type="text" id="maintainerEmail" value=$maintainerEmail label="plugins.generic.repec.settings.maintainerEmail" description="plugins.generic.repec.settings.maintainerEmailDescription"}
+					{if $isGlobalContext}
+						{fbvElement type="text" id="maintainerEmail" value=$maintainerEmail required=true label="plugins.generic.repec.settings.maintainerEmail" description="plugins.generic.repec.settings.maintainerEmailGlobalDescription"}
+					{else}
+						{fbvElement type="text" id="maintainerEmail" value=$maintainerEmail label="plugins.generic.repec.settings.maintainerEmail" description="plugins.generic.repec.settings.maintainerEmailDescription"}
+					{/if}
 				</div>
 				{if $supportEmailInUse}
 					<p class="repecSettingsSupportEmailNotice">

@@ -71,6 +71,9 @@ msgstr "Maintainer email"
 msgid "plugins.generic.repec.settings.maintainerEmailDescription"
 msgstr "Optional. If left empty, the plugin will use the technical support email configured for the journal in OJS; if that is also empty, it will use the journal's main contact email."
 
+msgid "plugins.generic.repec.settings.maintainerEmailGlobalDescription"
+msgstr "Required. This will be used as the email of the person responsible for the global RePEc archive in this OJS installation."
+
 msgid "plugins.generic.repec.settings.supportEmailInUse"
 msgstr "If the maintainer email is empty, the technical support email configured in OJS will be used: {$email}."
 
