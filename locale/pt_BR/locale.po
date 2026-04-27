@@ -33,7 +33,7 @@ msgid "plugins.generic.repec.settings.maintainer"
 msgstr "Mantenedor"
 
 msgid "plugins.generic.repec.settings.requiredData"
-msgstr "Dados obrigatórios"
+msgstr "Dados necessários para configuração do plugin RePEc"
 
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "Código de 3 letras fornecido pelo RePEc"
@@ -104,6 +104,9 @@ msgstr "Informe o nome do mantenedor."
 msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Informe um e-mail válido para o mantenedor."
 
+msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgstr "Informe o e-mail do responsável pelo arquivo RePEc."
+
 msgid "plugins.generic.repec.settings.globalJournals"
 msgstr "Revistas neste arquivo RePEc"
 
@@ -114,7 +117,7 @@ msgid "plugins.generic.repec.settings.globalJournalUnavailable"
 msgstr "Esta revista já tem uma configuração RePEc individual."
 
 msgid "plugins.generic.repec.settings.globalJournalsInvalid"
-msgstr "Cada revista selecionada deve ter um código de série único com 6 caracteres."
+msgstr "Selecione pelo menos uma revista e informe um código de série único com 6 caracteres para cada revista selecionada."
 
 msgid "plugins.generic.repec.settings.managedByGlobalArchive"
 msgstr "Esta revista está configurada no arquivo RePEc global {$archiveCode}. As configurações RePEc individuais estão desabilitadas para esta revista."

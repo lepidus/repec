@@ -52,9 +52,10 @@ class RepecSettingsForm extends Form
             $this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
             $this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
         } else {
-            $this->addCheck(new FormValidatorCustom($this, 'globalJournals', 'optional', 'plugins.generic.repec.settings.globalJournalsInvalid', array($this, 'validateGlobalJournals')));
+            $this->addCheck(new FormValidatorCustom($this, 'globalJournals', 'required', 'plugins.generic.repec.settings.globalJournalsInvalid', array($this, 'validateGlobalJournals')));
+            $this->addCheck(new FormValidator($this, 'maintainerEmail', 'required', 'plugins.generic.repec.settings.maintainerEmailRequired'));
         }
-        $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
+        $this->addCheck(new FormValidatorEmail($this, 'maintainerEmail', $this->isGlobalContext() ? 'required' : 'optional', 'plugins.generic.repec.settings.maintainerEmailInvalid'));
     }
 
     public function initData()
@@ -127,6 +128,10 @@ class RepecSettingsForm extends Form
     public function validateGlobalJournals($globalJournals)
     {
         $journals = $this->decodeGlobalJournals($globalJournals);
+        if (empty($journals)) {
+            return false;
+        }
+
         $seriesCodes = array();
         foreach ($journals as $journalId => $seriesCode) {
             if (!$this->validateSeriesCode($seriesCode)) {

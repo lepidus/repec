@@ -33,7 +33,7 @@ msgid "plugins.generic.repec.settings.maintainer"
 msgstr "Maintainer"
 
 msgid "plugins.generic.repec.settings.requiredData"
-msgstr "Required data"
+msgstr "Data required to configure the RePEc plugin"
 
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "3-letter code provided by RePEc"
@@ -104,6 +104,9 @@ msgstr "Enter the maintainer name."
 msgid "plugins.generic.repec.settings.maintainerEmailInvalid"
 msgstr "Enter a valid maintainer email."
 
+msgid "plugins.generic.repec.settings.maintainerEmailRequired"
+msgstr "Enter the email of the person responsible for the RePEc archive."
+
 msgid "plugins.generic.repec.settings.globalJournals"
 msgstr "Journals in this RePEc archive"
 
@@ -114,7 +117,7 @@ msgid "plugins.generic.repec.settings.globalJournalUnavailable"
 msgstr "This journal already has an individual RePEc configuration."
 
 msgid "plugins.generic.repec.settings.globalJournalsInvalid"
-msgstr "Each selected journal must have a unique 6-character series code."
+msgstr "Select at least one journal and enter a unique 6-character series code for each selected journal."
 
 msgid "plugins.generic.repec.settings.managedByGlobalArchive"
 msgstr "This journal is configured in the global RePEc archive {$archiveCode}. Individual RePEc settings are disabled for this journal."
