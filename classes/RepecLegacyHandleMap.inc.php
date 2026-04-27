@@ -54,7 +54,7 @@ class RepecLegacyHandleMap
 
     private function isValidHandle($handle)
     {
-        return preg_match('/^RePEc:[A-Za-z0-9][A-Za-z0-9:._;()\/-]*$/', $handle);
+        return preg_match('/^RePEc:[A-Za-z0-9][A-Za-z0-9:._;(),?\/-]*$/', $handle);
     }
 
     private function isList($data)

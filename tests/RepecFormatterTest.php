@@ -117,11 +117,11 @@ class RepecFormatterTest extends PKPTestCase
     public function testParsesLegacyHandleMapJson()
     {
         $parser = new RepecLegacyHandleMap();
-        list($handles, $error) = $parser->parseJson('{"456":"RePEc:abc:journl:a:old456","123":"RePEc:abc:journl:a:old123"}');
+        list($handles, $error) = $parser->parseJson('{"456":"RePEc:abc:journl:a:old456","123":"RePEc:abc:journl:v:30:y:2010:i:3:p:364?380,:id:old123"}');
 
         $this->assertNull($error);
         $this->assertSame(array(
-            '123' => 'RePEc:abc:journl:a:old123',
+            '123' => 'RePEc:abc:journl:v:30:y:2010:i:3:p:364?380,:id:old123',
             '456' => 'RePEc:abc:journl:a:old456',
         ), $handles);
     }
