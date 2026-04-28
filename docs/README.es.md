@@ -1,14 +1,24 @@
 # Generador de ReDIF para RePEc
 
-Plugin genérico para OJS 3.4 que publica metadatos de la revista en formato ReDIF para su indexación en RePEc.
-
-Use la rama `stable-3_4_0` para OJS 3.4. Use la rama `stable-3_3_0` para OJS 3.3.
+Plugin genérico para OJS que publica metadatos de la revista en formato ReDIF para su indexación en RePEc.
 
 Traducciones:
 
 - [English](../README.md)
 - [Español](README.es.md)
 - [Português do Brasil](README.pt_BR.md)
+
+## Compatibilidad
+
+Use la rama y el paquete del plugin que correspondan a la versión de OJS:
+
+| Versión de OJS | Rama del plugin | Versión del plugin |
+| --- | --- | --- |
+| OJS 3.3.x | `stable-3_3_0` | `v1.2.2.0` |
+| OJS 3.4.x | `stable-3_4_0` | `v2.0.0.0` |
+| OJS 3.5.x | `stable-3_5_0` | `v3.0.0.0` |
+
+La rama `main` actualmente sigue la línea compatible con OJS 3.5. Para instalaciones de producción, prefiera la rama estable y la etiqueta de release que correspondan a la versión de OJS de destino.
 
 ## Uso
 
@@ -65,6 +75,16 @@ Si una revista ya tiene handles de artículos publicados por otro flujo, importe
 ```
 
 Los handles heredados se configuran por revista. También se aplican cuando la revista se publica mediante un archivo RePEc global.
+
+## Ramas de desarrollo
+
+El trabajo de compatibilidad se mantiene en ramas estables versionadas:
+
+- `stable-3_3_0`: línea de código compatible con OJS 3.3.
+- `stable-3_4_0`: línea de código compatible con OJS 3.4, publicada como `v2.0.0.0`.
+- `stable-3_5_0`: línea de código compatible con OJS 3.5, publicada como `v3.0.0.0`.
+
+Al modificar documentación mantenida en más de un idioma, actualice `README.md`, `docs/README.es.md` y `docs/README.pt_BR.md` en conjunto.
 
 ## Créditos
 

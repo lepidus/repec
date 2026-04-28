@@ -1,14 +1,24 @@
 # ReDIF Generator for RePEc
 
-Generic plugin for OJS 3.4 that publishes journal metadata in ReDIF format for RePEc indexing.
-
-Use the `stable-3_4_0` branch for OJS 3.4. Use the `stable-3_3_0` branch for OJS 3.3.
+Generic plugin for OJS that publishes journal metadata in ReDIF format for RePEc indexing.
 
 Translations:
 
 - [English](README.md)
 - [Español](docs/README.es.md)
 - [Português do Brasil](docs/README.pt_BR.md)
+
+## Compatibility
+
+Use the plugin branch and package that match your OJS version:
+
+| OJS version | Plugin branch | Plugin release |
+| --- | --- | --- |
+| OJS 3.3.x | `stable-3_3_0` | `v1.2.2.0` |
+| OJS 3.4.x | `stable-3_4_0` | `v2.0.0.0` |
+| OJS 3.5.x | `stable-3_5_0` | `v3.0.0.0` |
+
+The `main` branch currently follows the OJS 3.5 compatible line. For production installations, prefer the stable branch and release tag that match the target OJS version.
 
 ## Usage
 
@@ -65,6 +75,16 @@ If a journal already has article handles published by another workflow, import a
 ```
 
 Legacy handles are configured per journal. They are also applied when the journal is published through a global RePEc archive.
+
+## Development Branches
+
+Compatibility work is maintained in versioned stable branches:
+
+- `stable-3_3_0`: OJS 3.3 compatible code line.
+- `stable-3_4_0`: OJS 3.4 compatible code line, released as `v2.0.0.0`.
+- `stable-3_5_0`: OJS 3.5 compatible code line, released as `v3.0.0.0`.
+
+When changing documentation that exists in more than one language, update `README.md`, `docs/README.es.md`, and `docs/README.pt_BR.md` together.
 
 ## Credits
 
