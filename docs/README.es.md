@@ -23,6 +23,10 @@ Para un archivo individual de revista:
 2. Abra la configuración del plugin e informe el código RePEc del archivo, el código de la serie y el correo electrónico opcional del mantenedor.
 3. Acceda a la URL pública indicada en la configuración del plugin.
 
+El formulario separa los campos obligatorios de las opciones avanzadas. Para la mayoría de las revistas, complete solo el código del archivo RePEc, el código de la serie y, si es necesario, el correo electrónico del mantenedor.
+
+Si el campo de código de serie está vacío, use **Generar automáticamente** para completarlo a partir de los datos de la revista y revíselo antes de guardar. Después de publicar la revista en RePEc, evite cambiar el código del archivo, el código de la serie o el patrón de handle de los artículos.
+
 El correo electrónico del mantenedor es opcional. Cuando no se completa, el plugin usa el correo electrónico de soporte técnico configurado para la revista en OJS. Si ese correo también está vacío, usa el correo electrónico principal de contacto de la revista.
 
 El plugin publica dinámicamente:
@@ -51,6 +55,8 @@ El archivo global publica:
 
 Todas las revistas seleccionadas se incluyen en el mismo archivo `{aaa}seri.redif`, con un template `ReDIF-Series 1.0` por revista. Una revista puede usar el archivo global o un archivo individual de la propia revista, pero no ambos. Otras revistas de la misma instalación OJS pueden quedar fuera del archivo global y usar archivos RePEc individuales.
 
+Si una revista fue configurada anteriormente con código de archivo y código de serie individuales, elimine esas configuraciones individuales en la sección **Avanzado** de la revista antes de seleccionarla en el archivo global.
+
 ## Handles RePEc heredados
 
 Si una revista ya tiene handles de artículos publicados por otro flujo, importe un archivo JSON en la configuración de la revista para preservar esos handles. El JSON debe ser un objeto en el que cada clave es el `submission_id` de OJS y cada valor es el handle RePEc heredado completo:
@@ -63,6 +69,55 @@ Si una revista ya tiene handles de artículos publicados por otro flujo, importe
 ```
 
 Los handles heredados se configuran por revista. También se aplican cuando la revista se publica mediante un archivo RePEc global.
+
+Los handles heredados siempre tienen prioridad sobre los handles generados a partir del patrón de handle de los artículos. Úselos cuando artículos específicos ya tienen handles RePEc públicos que deben preservarse exactamente.
+
+## Opciones avanzadas
+
+La sección **Avanzado** está destinada a revistas que ya tienen registros RePEc publicados o que necesitan seguir una convención específica de handles. Los cambios en esta sección pueden afectar identificadores públicos, así que úsela solo cuando tenga certeza sobre los handles RePEc esperados.
+
+### Patrón de handle de los artículos
+
+El plugin genera handles de artículos en el formato `RePEc:{archiveCode}:{seriesCode}:{suffix}`. De forma predeterminada, el sufijo mantiene el comportamiento anterior:
+
+```text
+v:%v:y:%Y:i:%i:id:%a
+```
+
+Antes de publicar los archivos RePEc de la revista, puede configurar otro sufijo en el campo de patrón de handle de los artículos. Los tokens aceptados son:
+
+- `%v`: volumen del número
+- `%Y`: año de publicación
+- `%i`: número de la edición
+- `%a`: ID del envío en OJS
+
+Por ejemplo, este patrón:
+
+```text
+v:%v:y:%Y:i:%i:a:%a
+```
+
+puede generar:
+
+```text
+RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960
+```
+
+Después de guardar una vez el patrón de handle de los artículos, el formulario lo muestra como solo lectura. Esto evita cambios accidentales en identificadores públicos después de que hayan sido recolectados por RePEc.
+
+### Migrar una revista al archivo global
+
+Una revista no puede usar una configuración RePEc individual y el archivo global al mismo tiempo. Si la revista ya tiene `archiveCode` y `seriesCode` individuales, no estará disponible para selección en el archivo global.
+
+Para dejar la revista disponible en el archivo global:
+
+1. Abra la configuración del plugin en el contexto de la revista.
+2. Abra la sección **Avanzado**.
+3. Seleccione la opción para eliminar las configuraciones individuales `archiveCode` y `seriesCode`.
+4. Guarde el formulario.
+5. Abra la configuración del plugin en el contexto del sitio y seleccione la revista en el archivo global.
+
+Esto elimina solo el código de archivo y el código de serie individuales. No elimina handles heredados ni el patrón de handle de los artículos configurado para la revista.
 
 ## Créditos
 
