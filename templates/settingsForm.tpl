@@ -8,12 +8,13 @@
 		var $form = $('#repecSettingsForm');
 		var articleHandlePatternLocked = $form.data('article-handle-pattern-locked') === 1;
 		var articleHandlePatternInitiallySaved = $.trim($('#articleHandlePattern').val() || '') !== '';
-		var confirmArticleHandlePattern = '{translate key="plugins.generic.repec.settings.articleHandlePatternConfirm"|escape:"javascript"}';
+		var confirmArticleHandlePattern = {translate|json_encode key="plugins.generic.repec.settings.articleHandlePatternConfirm"};
+		var confirmRemoveIndividualSettings = {translate|json_encode key="plugins.generic.repec.settings.removeIndividualSettingsConfirm"};
 
 		function buildArticleHandlePreview() {ldelim}
 			var archiveCode = $.trim($('#archiveCode').val() || '').toLowerCase() || 'aaa';
 			var seriesCode = $.trim($('#seriesCode').val() || '').toLowerCase() || 'series';
-			var pattern = $.trim($('#articleHandlePattern').val() || '') || "{$defaultArticleHandlePattern|escape:"javascript"}";
+			var pattern = $.trim($('#articleHandlePattern').val() || '') || {$defaultArticleHandlePattern|json_encode};
 			var suffix = pattern
 				.replace(/%v/g, '35')
 				.replace(/%Y/g, '1995')
@@ -24,6 +25,11 @@
 
 		$form.on('submit', function(event) {ldelim}
 			var pattern = $.trim($('#articleHandlePattern').val() || '');
+			if ($('#removeIndividualRepecSettings').is(':checked') && !confirm(confirmRemoveIndividualSettings)) {ldelim}
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				return false;
+			{rdelim}
 			if (!articleHandlePatternLocked && !articleHandlePatternInitiallySaved && pattern !== '') {ldelim}
 				buildArticleHandlePreview();
 				if (!confirm(confirmArticleHandlePattern.replace('__PREVIEW__', $('#articleHandlePatternPreview').text()))) {ldelim}
@@ -34,18 +40,22 @@
 			{rdelim}
 		{rdelim});
 
+		$form.pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+
 		$('.repecGenerateSeriesCode').on('click', function() {ldelim}
-			var target = $(this).data('target');
+			var targetName = $(this).data('targetName');
 			var suggestion = $(this).data('suggestion');
-			if (target && suggestion) {ldelim}
-				$('#' + target).val(suggestion).trigger('change');
+			var $target = $form.find(':input').filter(function() {ldelim}
+				return $(this).attr('name') === targetName;
+			{rdelim}).first();
+			if ($target.length && suggestion) {ldelim}
+				$target.val(suggestion).trigger('change');
 			{rdelim}
 		{rdelim});
 
 		$('#archiveCode, #seriesCode, #articleHandlePattern').on('keyup change', buildArticleHandlePreview);
 		buildArticleHandlePreview();
 
-		$form.pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
 		$('#legacyHandlesFile').on('change', function() {ldelim}
 			var file = this.files && this.files[0];
 			if (!file) {ldelim}
@@ -101,6 +111,16 @@
 		margin-top: 1rem;
 	}
 
+	#repecSettings .repecAdvancedWarning {
+		border-left: 4px solid #b00020;
+		margin: 1rem 0;
+		padding: 0.5rem 0.75rem;
+	}
+
+	#repecSettings .repecAdvancedWarning strong {
+		color: #b00020;
+	}
+
 	#repecSettings .repecHandlePreview {
 		background: #f5f5f5;
 		border: 1px solid #ddd;
@@ -145,7 +165,7 @@
 						{fbvElement type="text" id="seriesCode" value=$seriesCode required=true label="plugins.generic.repec.settings.seriesCode" description="plugins.generic.repec.settings.seriesCodeDescription" maxlength="6"}
 						{if $suggestedSeriesCode}
 							<div class="repecSeriesCodeActions">
-								<button type="button" class="pkp_button repecGenerateSeriesCode" data-target="seriesCode" data-suggestion="{$suggestedSeriesCode|escape}">
+								<button type="button" class="pkp_button repecGenerateSeriesCode" data-target-name="seriesCode" data-suggestion="{$suggestedSeriesCode|escape}">
 									{translate key="plugins.generic.repec.settings.generateSeriesCode"}
 								</button>
 							</div>
@@ -185,7 +205,7 @@
 									<input type="text" id="globalSeriesCodes-{$journal.id|escape}" name="globalSeriesCodes[{$journal.id|escape}]" value="{$journal.seriesCode|escape}" maxlength="6">
 									{if $journal.suggestedSeriesCode}
 										<div class="repecSeriesCodeActions">
-											<button type="button" class="pkp_button repecGenerateSeriesCode" data-target="globalSeriesCodes-{$journal.id|escape}" data-suggestion="{$journal.suggestedSeriesCode|escape}">
+											<button type="button" class="pkp_button repecGenerateSeriesCode" data-target-name="globalSeriesCodes[{$journal.id|escape}]" data-suggestion="{$journal.suggestedSeriesCode|escape}">
 												{translate key="plugins.generic.repec.settings.generateSeriesCode"}
 											</button>
 										</div>
@@ -201,6 +221,10 @@
 		{if !$isGlobalContext}
 			<details class="repecAdvancedSettings">
 				<summary>{translate key="plugins.generic.repec.settings.advanced"}</summary>
+				<p class="repecAdvancedWarning">
+					<strong>{translate key="plugins.generic.repec.settings.advancedWarningLabel"}</strong>
+					{translate key="plugins.generic.repec.settings.advancedWarning"}
+				</p>
 				{fbvFormSection}
 					<div class="repecSettingsFormField">
 						<label for="articleHandlePattern">{translate key="plugins.generic.repec.settings.articleHandlePattern"}</label>
@@ -232,6 +256,14 @@
 						<label for="legacyHandlesJson">{translate key="plugins.generic.repec.settings.legacyHandlesJson"}</label>
 						<textarea id="legacyHandlesJson" name="legacyHandlesJson"></textarea>
 					</div>
+					{if !$isManagedByGlobalArchive}
+						<div class="repecSettingsFormField">
+							<label>
+								<input type="checkbox" id="removeIndividualRepecSettings" name="removeIndividualRepecSettings" value="1"{if !$hasIndividualRepecSettingsToRemove} disabled="disabled"{/if}>
+								{translate key="plugins.generic.repec.settings.removeIndividualSettings"}
+							</label>
+						</div>
+					{/if}
 				{/fbvFormSection}
 			</details>
 		{/if}

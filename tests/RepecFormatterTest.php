@@ -277,6 +277,65 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertFalse($form->validateArticleHandlePattern('RePEc:fgv:eaerae:v:%v:y:%Y:i:%i:a:%a'));
     }
 
+    public function testRemoveIndividualSettingsClearsArchiveAndSeriesCodesOnly()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $form->setData('removeIndividualRepecSettings', '1');
+        $form->setData('archiveCode', 'ABC');
+        $form->setData('seriesCode', 'JOURN1');
+        $form->setData('maintainerEmail', 'repec@example.org');
+
+        $method = new ReflectionMethod($form, 'getSettingValueForStorage');
+        $method->setAccessible(true);
+
+        $this->assertSame('', $method->invoke($form, 'archiveCode'));
+        $this->assertSame('', $method->invoke($form, 'seriesCode'));
+        $this->assertSame('repec@example.org', $method->invoke($form, 'maintainerEmail'));
+    }
+
+    public function testRemoveIndividualSettingsOptionOnlyEnabledWhenThereAreCodesToRemove()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $method = new ReflectionMethod($form, 'hasIndividualRepecSettingsToRemove');
+        $method->setAccessible(true);
+
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', '');
+        $this->assertFalse($method->invoke($form));
+
+        $form->setData('archiveCode', 'abc');
+        $this->assertTrue($method->invoke($form));
+
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', 'journ1');
+        $this->assertTrue($method->invoke($form));
+    }
+
+    public function testSettingsTemplateSerializesTranslatedJavascriptStringsAsJson()
+    {
+        $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
+
+        $this->assertStringNotContainsString("'{translate", $template);
+        $this->assertStringNotContainsString('"{translate', $template);
+        $this->assertStringContainsString(
+            '{translate|json_encode key="plugins.generic.repec.settings.articleHandlePatternConfirm"}',
+            $template
+        );
+        $this->assertStringContainsString(
+            '{translate|json_encode key="plugins.generic.repec.settings.removeIndividualSettingsConfirm"}',
+            $template
+        );
+    }
+
+    public function testSeriesCodeGeneratorTargetsInputsByName()
+    {
+        $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
+
+        $this->assertStringContainsString("data-target-name=\"seriesCode\"", $template);
+        $this->assertStringContainsString('data-target-name="globalSeriesCodes[{$journal.id|escape}]"', $template);
+        $this->assertStringNotContainsString('data-target="seriesCode"', $template);
+    }
+
     public function testEncodesEmptyLegacyHandleMapAsJsonObject()
     {
         $parser = new RepecLegacyHandleMap();

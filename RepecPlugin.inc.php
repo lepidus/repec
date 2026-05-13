@@ -98,6 +98,10 @@ class RepecPlugin extends GenericPlugin
                     $form->readInputData();
                     if ($form->validate()) {
                         $form->execute();
+                        if ($request->getUserVar('removeIndividualRepecSettings')) {
+                            $form->initData();
+                            return new JSONMessage(true, $form->fetch($request));
+                        }
                         return new JSONMessage(true);
                     }
                 } else {

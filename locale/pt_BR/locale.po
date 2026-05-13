@@ -131,6 +131,12 @@ msgstr "Esta revista está configurada no arquivo RePEc global {$archiveCode}. A
 msgid "plugins.generic.repec.settings.advanced"
 msgstr "Avançado"
 
+msgid "plugins.generic.repec.settings.advancedWarningLabel"
+msgstr "Cuidado:"
+
+msgid "plugins.generic.repec.settings.advancedWarning"
+msgstr "mudanças nessa área são arriscadas e devem ser feitas com cuidado redobrado. Não mexa se não houver certeza."
+
 msgid "plugins.generic.repec.settings.articleHandlePattern"
 msgstr "Padrão do handle dos artigos"
 
@@ -147,10 +153,16 @@ msgid "plugins.generic.repec.settings.articleHandlePatternWarning"
 msgstr "Handles já publicados não devem mudar. Configure este padrão antes de publicar os arquivos RePEc da revista."
 
 msgid "plugins.generic.repec.settings.articleHandlePatternConfirm"
-msgstr "Este padrão será usado para gerar handles públicos de artigos e não poderá ser alterado pelo formulário depois de salvo.\n\nPrévia: __PREVIEW__\n\nDeseja salvar este padrão?"
+msgstr "Este padrão será usado para gerar handles públicos de artigos e não poderá ser alterado pelo formulário depois de salvo. Prévia: __PREVIEW__. Deseja salvar este padrão?"
 
 msgid "plugins.generic.repec.settings.articleHandlePatternInvalid"
 msgstr "Informe apenas o sufixo do handle, sem RePEc, usando caracteres válidos e os tokens %v, %Y, %i e %a."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettings"
+msgstr "Remover configurações individuais \"archiveCode\" e \"seriesCode\" para que a revista possa ser disponibilizada via configuração global do site."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettingsConfirm"
+msgstr "Isso removerá as configurações individuais archiveCode e seriesCode desta revista. Depois disso, a revista poderá ser selecionada na configuração global do site. Deseja continuar?"
 
 msgid "plugins.generic.repec.settings.legacyHandles"
 msgstr "Handles RePEc legados"

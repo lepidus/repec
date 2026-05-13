@@ -131,6 +131,12 @@ msgstr "This journal is configured in the global RePEc archive {$archiveCode}. I
 msgid "plugins.generic.repec.settings.advanced"
 msgstr "Advanced"
 
+msgid "plugins.generic.repec.settings.advancedWarningLabel"
+msgstr "Careful:"
+
+msgid "plugins.generic.repec.settings.advancedWarning"
+msgstr "changes in this area are risky and must be made with extra care. Do not change anything unless you are certain."
+
 msgid "plugins.generic.repec.settings.articleHandlePattern"
 msgstr "Article handle pattern"
 
@@ -147,10 +153,16 @@ msgid "plugins.generic.repec.settings.articleHandlePatternWarning"
 msgstr "Published handles should not change. Configure this pattern before publishing the journal's RePEc files."
 
 msgid "plugins.generic.repec.settings.articleHandlePatternConfirm"
-msgstr "This pattern will be used to generate public article handles and cannot be changed in the form after it is saved.\n\nPreview: __PREVIEW__\n\nDo you want to save this pattern?"
+msgstr "This pattern will be used to generate public article handles and cannot be changed in the form after it is saved. Preview: __PREVIEW__. Do you want to save this pattern?"
 
 msgid "plugins.generic.repec.settings.articleHandlePatternInvalid"
 msgstr "Enter only the handle suffix, without RePEc, using valid characters and the tokens %v, %Y, %i, and %a."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettings"
+msgstr "Remove individual \"archiveCode\" and \"seriesCode\" settings so the journal can be made available through the site's global configuration."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettingsConfirm"
+msgstr "This will remove the individual archiveCode and seriesCode settings from this journal. After that, the journal can be selected in the site's global configuration. Do you want to continue?"
 
 msgid "plugins.generic.repec.settings.legacyHandles"
 msgstr "Legacy RePEc handles"

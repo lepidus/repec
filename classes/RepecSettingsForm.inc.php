@@ -48,11 +48,11 @@ class RepecSettingsForm extends Form
         $this->addCheck(new FormValidatorPost($this));
         $this->addCheck(new FormValidatorCSRF($this));
 
-        if ($this->isGlobalContext() || !$this->isManagedByGlobalArchive()) {
+        if (($this->isGlobalContext() || !$this->isManagedByGlobalArchive()) && !$this->isRemovingIndividualSettings()) {
             $this->addCheck(new FormValidator($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeRequired'));
             $this->addCheck(new FormValidatorCustom($this, 'archiveCode', 'required', 'plugins.generic.repec.settings.archiveCodeInvalid', array($this, 'validateArchiveCode')));
         }
-        if (!$this->isGlobalContext() && !$this->isManagedByGlobalArchive()) {
+        if (!$this->isGlobalContext() && !$this->isManagedByGlobalArchive() && !$this->isRemovingIndividualSettings()) {
             $this->addCheck(new FormValidator($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeRequired'));
             $this->addCheck(new FormValidatorCustom($this, 'seriesCode', 'required', 'plugins.generic.repec.settings.seriesCodeInvalid', array($this, 'validateSeriesCode')));
         } elseif ($this->isGlobalContext()) {
@@ -90,7 +90,7 @@ class RepecSettingsForm extends Form
             return;
         }
 
-        $this->readUserVars(array_keys(self::$settings));
+        $this->readUserVars(array_merge(array_keys(self::$settings), array('removeIndividualRepecSettings')));
         $this->readLegacyHandlesInput();
     }
 
@@ -114,6 +114,7 @@ class RepecSettingsForm extends Form
             $this->getData('seriesCode'),
             $this->getData('articleHandlePattern')
         ));
+        $templateMgr->assign('hasIndividualRepecSettingsToRemove', $this->hasIndividualRepecSettingsToRemove());
         return parent::fetch($request, $template, $display);
     }
 
@@ -125,17 +126,16 @@ class RepecSettingsForm extends Form
                 'articleHandlePattern' => 'string',
                 'legacyHandles' => 'string',
             );
+        } elseif ($this->isRemovingIndividualSettings()) {
+            $settings = array(
+                'archiveCode' => 'string',
+                'seriesCode' => 'string',
+                'articleHandlePattern' => 'string',
+                'legacyHandles' => 'string',
+            );
         }
         foreach ($settings as $settingName => $settingType) {
-            $value = trim((string) $this->getData($settingName));
-            if (in_array($settingName, array('archiveCode', 'seriesCode'))) {
-                $value = strtolower($value);
-            }
-            if ($settingName === 'legacyHandles') {
-                $value = $this->normalizeLegacyHandlesSetting($value);
-            } elseif ($settingName === 'articleHandlePattern') {
-                $value = $this->getArticleHandlePatternValueForStorage($value);
-            }
+            $value = $this->getSettingValueForStorage($settingName);
             $this->plugin->updateSetting($this->contextId, $settingName, $value, $settingType);
         }
 
@@ -209,6 +209,29 @@ class RepecSettingsForm extends Form
         return (int) $this->contextId === 0;
     }
 
+    private function isRemovingIndividualSettings()
+    {
+        if ($this->isGlobalContext()) {
+            return false;
+        }
+        if ((string) $this->getData('removeIndividualRepecSettings') === '1') {
+            return true;
+        }
+
+        $request = Application::get()->getRequest();
+        return $request && (string) $request->getUserVar('removeIndividualRepecSettings') === '1';
+    }
+
+    private function hasIndividualRepecSettingsToRemove()
+    {
+        if ($this->isGlobalContext()) {
+            return false;
+        }
+
+        return trim((string) $this->getData('archiveCode')) !== ''
+            || trim((string) $this->getData('seriesCode')) !== '';
+    }
+
     private function buildGlobalJournalsSetting()
     {
         $selected = (array) Application::get()->getRequest()->getUserVar('globalJournalIds');
@@ -246,6 +269,25 @@ class RepecSettingsForm extends Form
     private function normalizeLegacyHandlesSetting($value)
     {
         return $this->getLegacyHandleMapParser()->encodeForStorage($this->getLegacyHandleMapParser()->decode($value));
+    }
+
+    private function getSettingValueForStorage($settingName)
+    {
+        $value = trim((string) $this->getData($settingName));
+        if ($this->isRemovingIndividualSettings() && in_array($settingName, array('archiveCode', 'seriesCode'))) {
+            return '';
+        }
+        if (in_array($settingName, array('archiveCode', 'seriesCode'))) {
+            $value = strtolower($value);
+        }
+        if ($settingName === 'legacyHandles') {
+            return $this->normalizeLegacyHandlesSetting($value);
+        }
+        if ($settingName === 'articleHandlePattern') {
+            return $this->getArticleHandlePatternValueForStorage($value);
+        }
+
+        return $value;
     }
 
     private function decodeGlobalJournals($value)
