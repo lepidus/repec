@@ -26,6 +26,7 @@ class RepecSettingsForm extends Form
         'archiveCode' => 'string',
         'seriesCode' => 'string',
         'maintainerEmail' => 'string',
+        'articleHandlePattern' => 'string',
         'legacyHandles' => 'string',
     );
 
@@ -64,6 +65,7 @@ class RepecSettingsForm extends Form
         }
         if (!$this->isGlobalContext()) {
             $this->addCheck(new FormValidatorCustom($this, 'legacyHandles', 'optional', 'plugins.generic.repec.settings.legacyHandlesInvalid', array($this, 'validateLegacyHandlesUpload')));
+            $this->addCheck(new FormValidatorCustom($this, 'articleHandlePattern', 'optional', 'plugins.generic.repec.settings.articleHandlePatternInvalid', array($this, 'validateArticleHandlePattern')));
         }
     }
 
@@ -74,9 +76,7 @@ class RepecSettingsForm extends Form
         foreach ($settings as $settingName => $settingType) {
             $this->_data[$settingName] = $this->plugin->getSetting($this->contextId, $settingName);
         }
-        if (!$this->isGlobalContext() && empty($this->_data['seriesCode'])) {
-            $this->_data['seriesCode'] = $this->generateSeriesCode();
-        }
+        $this->_data['suggestedSeriesCode'] = $this->isGlobalContext() ? '' : $this->generateSeriesCode();
         if ($this->isGlobalContext() && empty($this->_data['globalJournals'])) {
             $this->_data['globalJournals'] = '{}';
         }
@@ -106,6 +106,14 @@ class RepecSettingsForm extends Form
         $templateMgr->assign('globalArchiveCode', $this->getGlobalArchiveCodeForContext());
         $templateMgr->assign('legacyHandlesCount', count($this->getLegacyHandles()));
         $templateMgr->assign('legacyHandlesDownloadUrl', $this->getLegacyHandlesDownloadUrl($request));
+        $templateMgr->assign('suggestedSeriesCode', $this->getData('suggestedSeriesCode'));
+        $templateMgr->assign('defaultArticleHandlePattern', $this->getDefaultArticleHandlePattern());
+        $templateMgr->assign('articleHandlePatternLocked', !$this->isGlobalContext() && trim((string) $this->plugin->getSetting($this->contextId, 'articleHandlePattern')) !== '');
+        $templateMgr->assign('articleHandlePatternPreview', $this->buildArticleHandlePatternPreview(
+            $this->getData('archiveCode'),
+            $this->getData('seriesCode'),
+            $this->getData('articleHandlePattern')
+        ));
         return parent::fetch($request, $template, $display);
     }
 
@@ -113,7 +121,10 @@ class RepecSettingsForm extends Form
     {
         $settings = $this->isGlobalContext() ? self::$globalSettings : self::$settings;
         if (!$this->isGlobalContext() && $this->isManagedByGlobalArchive()) {
-            $settings = array('legacyHandles' => 'string');
+            $settings = array(
+                'articleHandlePattern' => 'string',
+                'legacyHandles' => 'string',
+            );
         }
         foreach ($settings as $settingName => $settingType) {
             $value = trim((string) $this->getData($settingName));
@@ -122,6 +133,8 @@ class RepecSettingsForm extends Form
             }
             if ($settingName === 'legacyHandles') {
                 $value = $this->normalizeLegacyHandlesSetting($value);
+            } elseif ($settingName === 'articleHandlePattern') {
+                $value = $this->getArticleHandlePatternValueForStorage($value);
             }
             $this->plugin->updateSetting($this->contextId, $settingName, $value, $settingType);
         }
@@ -167,6 +180,28 @@ class RepecSettingsForm extends Form
     public function validateLegacyHandlesUpload()
     {
         return $this->legacyHandlesUploadError === null;
+    }
+
+    public function validateArticleHandlePattern($pattern)
+    {
+        if (!$this->isGlobalContext() && trim((string) $this->plugin->getSetting($this->contextId, 'articleHandlePattern')) !== '') {
+            return true;
+        }
+
+        $pattern = trim((string) $pattern);
+        if ($pattern === '') {
+            return true;
+        }
+        if (stripos($pattern, 'RePEc:') === 0) {
+            return false;
+        }
+        if (!preg_match('/^[A-Za-z0-9:%._;(),?\/-]+$/', $pattern)) {
+            return false;
+        }
+
+        $knownTokensPattern = '/%(v|Y|i|a)/';
+        $withoutKnownTokens = preg_replace($knownTokensPattern, '', $pattern);
+        return strpos($withoutKnownTokens, '%') === false;
     }
 
     private function isGlobalContext()
@@ -244,7 +279,8 @@ class RepecSettingsForm extends Form
                 'name' => $journal->getLocalizedName(),
                 'path' => $journal->getPath(),
                 'selected' => $isSelected,
-                'seriesCode' => $isSelected ? $selectedJournals[$journalId] : $this->generateSeriesCodeForContext($journal),
+                'seriesCode' => $isSelected ? $selectedJournals[$journalId] : '',
+                'suggestedSeriesCode' => $this->generateSeriesCodeForContext($journal),
                 'disabled' => $hasIndividualConfiguration && !$isSelected,
             );
         }
@@ -375,6 +411,40 @@ class RepecSettingsForm extends Form
     private function getLegacyHandleMapParser()
     {
         return new RepecLegacyHandleMap();
+    }
+
+    private function getDefaultArticleHandlePattern()
+    {
+        return 'v:%v:y:%Y:i:%i:id:%a';
+    }
+
+    private function getArticleHandlePatternValueForStorage($value)
+    {
+        $existing = trim((string) $this->plugin->getSetting($this->contextId, 'articleHandlePattern'));
+        if ($existing !== '') {
+            return $existing;
+        }
+
+        return trim((string) $value);
+    }
+
+    private function buildArticleHandlePatternPreview($archiveCode, $seriesCode, $pattern)
+    {
+        $archiveCode = strtolower(trim((string) $archiveCode));
+        $seriesCode = strtolower(trim((string) $seriesCode));
+        $pattern = trim((string) $pattern);
+        if ($pattern === '') {
+            $pattern = $this->getDefaultArticleHandlePattern();
+        }
+
+        $suffix = strtr($pattern, array(
+            '%v' => '35',
+            '%Y' => '1995',
+            '%i' => '3',
+            '%a' => '59960',
+        ));
+
+        return 'RePEc:' . ($archiveCode ?: 'aaa') . ':' . ($seriesCode ?: 'series') . ':' . $suffix;
     }
 
     private function getSupportEmailInUse($request)

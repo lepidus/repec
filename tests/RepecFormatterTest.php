@@ -157,6 +157,126 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertSame('RePEc:abc:journ1:a:old123', $handle);
     }
 
+    public function testArticleHandleUsesCustomPatternWhenConfigured()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'fgv',
+            'seriesCode' => 'eaerae',
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+            'legacyHandles' => array(),
+        ), $this->getSubmissionStub(59960), $this->getIssueStub('35', '3'), '1995');
+
+        $this->assertSame('RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960', $handle);
+    }
+
+    public function testArticleHandleFallsBackToCurrentPatternWhenNotConfigured()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'abc',
+            'seriesCode' => 'journ1',
+            'articleHandlePattern' => '',
+            'legacyHandles' => array(),
+        ), $this->getSubmissionStub(123), $this->getIssueStub('35', '3'), '1995');
+
+        $this->assertSame('RePEc:abc:journ1:v:35:y:1995:i:3:id:123', $handle);
+    }
+
+    public function testArticleHandleFallbackOmitsMissingIssueParts()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'abc',
+            'seriesCode' => 'journ1',
+            'articleHandlePattern' => '',
+            'legacyHandles' => array(),
+        ), $this->getSubmissionStub(123), null, '');
+
+        $this->assertSame('RePEc:abc:journ1:id:123', $handle);
+    }
+
+    public function testArticleHandlePatternKeepsLegacyHandlePriority()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'fgv',
+            'seriesCode' => 'eaerae',
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+            'legacyHandles' => array('59960' => 'RePEc:fgv:eaerae:a:legacy59960'),
+        ), $this->getSubmissionStub(59960), $this->getIssueStub('35', '3'), '1995');
+
+        $this->assertSame('RePEc:fgv:eaerae:a:legacy59960', $handle);
+    }
+
+    public function testInitDataDoesNotAutofillNewSeriesCode()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $form->initData();
+
+        $this->assertSame('', $form->getData('seriesCode'));
+    }
+
+    public function testSeriesCodeSuggestionIsStillCalculated()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $method = new ReflectionMethod($form, 'generateSeriesCodeForContext');
+        $method->setAccessible(true);
+
+        $code = $method->invoke($form, new class () {
+            public function getPath()
+            {
+                return 'Revista de Economia Aplicada';
+            }
+
+            public function getData($name)
+            {
+                return '';
+            }
+
+            public function getLocalizedName()
+            {
+                return 'Revista Exemplo';
+            }
+        });
+
+        $this->assertSame('revist', $code);
+    }
+
+    public function testSavedArticleHandlePatternCannotBeChangedByFormStorage()
+    {
+        $form = $this->getSettingsFormStub(array(
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+        ));
+        $method = new ReflectionMethod($form, 'getArticleHandlePatternValueForStorage');
+        $method->setAccessible(true);
+
+        $value = $method->invoke($form, 'id:%a');
+
+        $this->assertSame('v:%v:y:%Y:i:%i:a:%a', $value);
+    }
+
+    public function testArticleHandlePatternValidationRejectsFullRepecHandle()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $this->assertTrue($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i:a:%a'));
+        $this->assertFalse($form->validateArticleHandlePattern('RePEc:fgv:eaerae:v:%v:y:%Y:i:%i:a:%a'));
+    }
+
     public function testEncodesEmptyLegacyHandleMapAsJsonObject()
     {
         $parser = new RepecLegacyHandleMap();
@@ -177,5 +297,68 @@ class RepecFormatterTest extends PKPTestCase
             $this->assertStringStartsWith('gz64:', $stored);
         }
         $this->assertSame($handles, $parser->decode($stored));
+    }
+
+    private function getSubmissionStub($id)
+    {
+        return new class ($id) {
+            private $id;
+
+            public function __construct($id)
+            {
+                $this->id = $id;
+            }
+
+            public function getId()
+            {
+                return $this->id;
+            }
+        };
+    }
+
+    private function getIssueStub($volume, $number)
+    {
+        return new class ($volume, $number) {
+            private $volume;
+            private $number;
+
+            public function __construct($volume, $number)
+            {
+                $this->volume = $volume;
+                $this->number = $number;
+            }
+
+            public function getVolume()
+            {
+                return $this->volume;
+            }
+
+            public function getNumber()
+            {
+                return $this->number;
+            }
+        };
+    }
+
+    private function getSettingsFormStub($settings)
+    {
+        $reflection = new ReflectionClass('RepecSettingsForm');
+        $form = $reflection->newInstanceWithoutConstructor();
+        $form->plugin = new class ($settings) {
+            private $settings;
+
+            public function __construct($settings)
+            {
+                $this->settings = $settings;
+            }
+
+            public function getSetting($contextId, $name)
+            {
+                return isset($this->settings[$name]) ? $this->settings[$name] : '';
+            }
+        };
+        $form->contextId = 1;
+
+        return $form;
     }
 }
