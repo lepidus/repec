@@ -153,12 +153,17 @@
 	{/if}
 
 	{fbvFormArea id="repecSettings"}
+		<p class="repecSettingsSupportEmailNotice">
+			{translate key="plugins.generic.repec.settings.repecScopeNotice"}
+			<a href="https://ideas.repec.org/stepbystep.html" target="_blank" rel="noopener">https://ideas.repec.org/stepbystep.html</a>
+		</p>
+
 		{if $isManagedByGlobalArchive}
 			<p>{translate key="plugins.generic.repec.settings.managedByGlobalArchive" archiveCode=$globalArchiveCode}</p>
 		{else}
 			{fbvFormSection title="plugins.generic.repec.settings.requiredData"}
 				<div class="repecSettingsFormField">
-					{fbvElement type="text" id="archiveCode" value=$archiveCode required=true label="plugins.generic.repec.settings.archiveCode" maxlength="3"}
+					{fbvElement type="text" id="archiveCode" value=$archiveCode required=true label="plugins.generic.repec.settings.archiveCode" description="plugins.generic.repec.settings.archiveCodeDescription" maxlength="3"}
 				</div>
 				{if !$isGlobalContext}
 					<div class="repecSettingsFormField">

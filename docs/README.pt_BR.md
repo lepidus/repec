@@ -8,6 +8,22 @@ Traduções:
 - [Español](README.es.md)
 - [Português do Brasil](README.pt_BR.md)
 
+## Antes de começar
+
+O RePEc é voltado à literatura de Economia e ciências relacionadas. Antes de configurar este plugin, confirme que a revista ou instituição é adequada para indexação no RePEc.
+
+Antes de publicar qualquer arquivo RePEc, siga as instruções oficiais passo a passo do RePEc:
+
+https://ideas.repec.org/stepbystep.html
+
+O guia passo a passo explica como solicitar um código de arquivo e como preparar um arquivo RePEc. Para a etapa específica de solicitação do código de arquivo, veja também:
+
+https://ideas.repec.org/t/archivehandle.html
+
+Não invente um código de arquivo RePEc nem use um código pertencente a outra instituição. Todo código de arquivo RePEc deve ser solicitado ao RePEc e atribuído ao seu departamento ou instituição para evitar conflitos com códigos já usados por terceiros.
+
+Se a sua instituição já tem um arquivo RePEc, normalmente não é necessário solicitar um novo código de arquivo. Um único arquivo RePEc pode incluir várias revistas ou séries.
+
 ## Uso
 
 O plugin pode ser usado de duas formas:
@@ -20,7 +36,7 @@ Esses modos podem coexistir na mesma instalação OJS. Uma revista selecionada p
 Para um arquivo individual de revista:
 
 1. Habilite o plugin em uma revista.
-2. Abra as configurações do plugin e informe o código RePEc do arquivo, o código da série e o e-mail opcional do mantenedor.
+2. Abra as configurações do plugin e informe o código de arquivo atribuído pelo RePEc, o código da série e o e-mail opcional do mantenedor.
 3. Acesse a URL pública indicada na configuração do plugin.
 
 O formulário separa os campos obrigatórios das opções avançadas. Para a maioria das revistas, preencha apenas o código do arquivo RePEc, o código da série e, se necessário, o e-mail do mantenedor.

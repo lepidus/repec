@@ -35,8 +35,14 @@ msgstr "Mantenedor"
 msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Dados necessários para configuração do plugin RePEc"
 
+msgid "plugins.generic.repec.settings.repecScopeNotice"
+msgstr "O RePEc é voltado à literatura de Economia e ciências relacionadas. Antes de publicar qualquer arquivo RePEc, siga as instruções oficiais passo a passo do RePEc:"
+
 msgid "plugins.generic.repec.settings.archiveCode"
-msgstr "Código de 3 letras fornecido pelo RePEc"
+msgstr "Código de arquivo atribuído oficialmente pelo RePEc"
+
+msgid "plugins.generic.repec.settings.archiveCodeDescription"
+msgstr "Não invente este código nem use um código pertencente a outra instituição. Solicite o código de arquivo ao RePEc antes de configurar o plugin."
 
 msgid "plugins.generic.repec.settings.archiveName"
 msgstr "Nome do arquivo"
