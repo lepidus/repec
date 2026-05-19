@@ -109,9 +109,13 @@ class RepecSettingsForm extends Form
         $templateMgr->assign('suggestedSeriesCode', $this->getData('suggestedSeriesCode'));
         $templateMgr->assign('defaultArticleHandlePattern', $this->getDefaultArticleHandlePattern());
         $templateMgr->assign('articleHandlePatternLocked', !$this->isGlobalContext() && trim((string) $this->plugin->getSetting($this->contextId, 'articleHandlePattern')) !== '');
+        $articleHandlePatternPreviewArchiveCode = $this->getArticleHandlePatternPreviewArchiveCode();
+        $articleHandlePatternPreviewSeriesCode = $this->getArticleHandlePatternPreviewSeriesCode();
+        $templateMgr->assign('articleHandlePatternPreviewArchiveCode', $articleHandlePatternPreviewArchiveCode);
+        $templateMgr->assign('articleHandlePatternPreviewSeriesCode', $articleHandlePatternPreviewSeriesCode);
         $templateMgr->assign('articleHandlePatternPreview', $this->buildArticleHandlePatternPreview(
-            $this->getData('archiveCode'),
-            $this->getData('seriesCode'),
+            $articleHandlePatternPreviewArchiveCode,
+            $articleHandlePatternPreviewSeriesCode,
             $this->getData('articleHandlePattern')
         ));
         $templateMgr->assign('hasIndividualRepecSettingsToRemove', $this->hasIndividualRepecSettingsToRemove());
@@ -196,6 +200,9 @@ class RepecSettingsForm extends Form
             return false;
         }
         if (!preg_match('/^[A-Za-z0-9:%._;(),?\/-]+$/', $pattern)) {
+            return false;
+        }
+        if (strpos($pattern, '%a') === false) {
             return false;
         }
 
@@ -361,6 +368,16 @@ class RepecSettingsForm extends Form
         return trim((string) $this->plugin->getSetting(0, 'archiveCode'));
     }
 
+    private function getGlobalSeriesCodeForContext()
+    {
+        if ($this->isGlobalContext()) {
+            return '';
+        }
+
+        $globalJournals = $this->decodeGlobalJournals($this->plugin->getSetting(0, 'globalJournals'));
+        return isset($globalJournals[$this->contextId]) ? trim((string) $globalJournals[$this->contextId]) : '';
+    }
+
     private function generateSeriesCode()
     {
         $context = Application::get()->getRequest()->getContext();
@@ -458,6 +475,24 @@ class RepecSettingsForm extends Form
     private function getDefaultArticleHandlePattern()
     {
         return 'v:%v:y:%Y:i:%i:id:%a';
+    }
+
+    private function getArticleHandlePatternPreviewArchiveCode()
+    {
+        if ($this->isManagedByGlobalArchive()) {
+            return $this->getGlobalArchiveCodeForContext();
+        }
+
+        return $this->getData('archiveCode');
+    }
+
+    private function getArticleHandlePatternPreviewSeriesCode()
+    {
+        if ($this->isManagedByGlobalArchive()) {
+            return $this->getGlobalSeriesCodeForContext();
+        }
+
+        return $this->getData('seriesCode');
     }
 
     private function getArticleHandlePatternValueForStorage($value)

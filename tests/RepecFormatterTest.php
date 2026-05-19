@@ -277,6 +277,40 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertFalse($form->validateArticleHandlePattern('RePEc:fgv:eaerae:v:%v:y:%Y:i:%i:a:%a'));
     }
 
+    public function testArticleHandlePatternValidationRequiresSubmissionToken()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $this->assertTrue($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i:a:%a'));
+        $this->assertFalse($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i'));
+    }
+
+    public function testArticleHandlePatternPreviewUsesGlobalArchiveCodes()
+    {
+        $form = $this->getSettingsFormStub(array(
+            'archiveCode' => 'fgv',
+            'globalJournals' => '{"1":"eaerae"}',
+        ));
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', '');
+
+        $archiveCodeMethod = new ReflectionMethod($form, 'getArticleHandlePatternPreviewArchiveCode');
+        $archiveCodeMethod->setAccessible(true);
+        $seriesCodeMethod = new ReflectionMethod($form, 'getArticleHandlePatternPreviewSeriesCode');
+        $seriesCodeMethod->setAccessible(true);
+        $previewMethod = new ReflectionMethod($form, 'buildArticleHandlePatternPreview');
+        $previewMethod->setAccessible(true);
+
+        $preview = $previewMethod->invoke(
+            $form,
+            $archiveCodeMethod->invoke($form),
+            $seriesCodeMethod->invoke($form),
+            'v:%v:y:%Y:i:%i:a:%a'
+        );
+
+        $this->assertSame('RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960', $preview);
+    }
+
     public function testRemoveIndividualSettingsClearsArchiveAndSeriesCodesOnly()
     {
         $form = $this->getSettingsFormStub(array());

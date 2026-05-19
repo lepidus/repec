@@ -8,12 +8,14 @@
 		var $form = $('#repecSettingsForm');
 		var articleHandlePatternLocked = $form.data('article-handle-pattern-locked') === 1;
 		var articleHandlePatternInitiallySaved = $.trim($('#articleHandlePattern').val() || '') !== '';
+		var articleHandlePatternPreviewArchiveCode = $.trim($form.data('article-handle-pattern-preview-archive-code') || '');
+		var articleHandlePatternPreviewSeriesCode = $.trim($form.data('article-handle-pattern-preview-series-code') || '');
 		var confirmArticleHandlePattern = {translate|json_encode key="plugins.generic.repec.settings.articleHandlePatternConfirm"};
 		var confirmRemoveIndividualSettings = {translate|json_encode key="plugins.generic.repec.settings.removeIndividualSettingsConfirm"};
 
 		function buildArticleHandlePreview() {ldelim}
-			var archiveCode = $.trim($('#archiveCode').val() || '').toLowerCase() || 'aaa';
-			var seriesCode = $.trim($('#seriesCode').val() || '').toLowerCase() || 'series';
+			var archiveCode = ($.trim($('#archiveCode').val() || '') || articleHandlePatternPreviewArchiveCode).toLowerCase() || 'aaa';
+			var seriesCode = ($.trim($('#seriesCode').val() || '') || articleHandlePatternPreviewSeriesCode).toLowerCase() || 'series';
 			var pattern = $.trim($('#articleHandlePattern').val() || '') || {$defaultArticleHandlePattern|json_encode};
 			var suffix = pattern
 				.replace(/%v/g, '35')
@@ -152,7 +154,7 @@
 	}
 </style>
 
-<form class="pkp_form" id="repecSettingsForm" method="post" enctype="multipart/form-data" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}" data-article-handle-pattern-locked="{if $articleHandlePatternLocked}1{else}0{/if}">
+<form class="pkp_form" id="repecSettingsForm" method="post" enctype="multipart/form-data" action="{url router=$smarty.const.ROUTE_COMPONENT op="manage" category="generic" plugin=$pluginName verb="settings" save=true}" data-article-handle-pattern-locked="{if $articleHandlePatternLocked}1{else}0{/if}" data-article-handle-pattern-preview-archive-code="{$articleHandlePatternPreviewArchiveCode|escape}" data-article-handle-pattern-preview-series-code="{$articleHandlePatternPreviewSeriesCode|escape}">
 	{csrf}
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="repecSettingsFormNotification"}
 

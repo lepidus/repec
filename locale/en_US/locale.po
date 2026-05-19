@@ -150,7 +150,7 @@ msgid "plugins.generic.repec.settings.articleHandlePattern"
 msgstr "Article handle pattern"
 
 msgid "plugins.generic.repec.settings.articleHandlePatternDescription"
-msgstr "Optional. Enter only the handle suffix, without RePEc, archive code, or series code. Accepted tokens: %v for volume, %Y for year, %i for issue number, and %a for submission ID."
+msgstr "Optional. Enter only the handle suffix, without RePEc, archive code, or series code. Accepted tokens: %v for volume, %Y for year, %i for issue number, and %a for submission ID. The %a token is required to keep article handles unique."
 
 msgid "plugins.generic.repec.settings.articleHandlePatternLockedDescription"
 msgstr "This pattern has already been saved and cannot be changed in the form."
@@ -165,7 +165,7 @@ msgid "plugins.generic.repec.settings.articleHandlePatternConfirm"
 msgstr "This pattern will be used to generate public article handles and cannot be changed in the form after it is saved. Preview: __PREVIEW__. Do you want to save this pattern?"
 
 msgid "plugins.generic.repec.settings.articleHandlePatternInvalid"
-msgstr "Enter only the handle suffix, without RePEc, using valid characters and the tokens %v, %Y, %i, and %a."
+msgstr "Enter only the handle suffix, without RePEc, using valid characters and the tokens %v, %Y, %i, and %a. The %a token is required."
 
 msgid "plugins.generic.repec.settings.removeIndividualSettings"
 msgstr "Remove individual \"archiveCode\" and \"seriesCode\" settings so the journal can be made available through the site's global configuration."
