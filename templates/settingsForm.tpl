@@ -85,6 +85,19 @@
 		margin: -0.5rem 0 1.1rem;
 	}
 
+	#repecSettings .repecScopeNotice {
+		background: #f8f8f8;
+		border-left: 4px solid #006798;
+		color: #444;
+		line-height: 1.5;
+		margin: 0.5rem 0 1.25rem;
+		padding: 0.6rem 0.75rem;
+	}
+
+	#repecSettings .repecScopeNotice p {
+		margin: 0;
+	}
+
 	#repecSettings legend,
 	#repecSettings .section h3,
 	#repecSettings .section_title {
@@ -153,10 +166,12 @@
 	{/if}
 
 	{fbvFormArea id="repecSettings"}
-		<p class="repecSettingsSupportEmailNotice">
-			{translate key="plugins.generic.repec.settings.repecScopeNotice"}
-			<a href="https://ideas.repec.org/stepbystep.html" target="_blank" rel="noopener">https://ideas.repec.org/stepbystep.html</a>
-		</p>
+		<div class="repecScopeNotice">
+			<p>
+				{translate key="plugins.generic.repec.settings.repecScopeNotice"}
+				<a href="https://ideas.repec.org/stepbystep.html" target="_blank" rel="noopener">{translate key="plugins.generic.repec.settings.repecScopeNoticeLink"}</a>.
+			</p>
+		</div>
 
 		{if $isManagedByGlobalArchive}
 			<p>{translate key="plugins.generic.repec.settings.managedByGlobalArchive" archiveCode=$globalArchiveCode}</p>

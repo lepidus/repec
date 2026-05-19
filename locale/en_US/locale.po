@@ -36,7 +36,10 @@ msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Data required to configure the RePEc plugin"
 
 msgid "plugins.generic.repec.settings.repecScopeNotice"
-msgstr "RePEc is intended for Economics literature and related sciences. Before publishing any RePEc files, follow the official RePEc step-by-step instructions:"
+msgstr "RePEc is intended for Economics literature and related sciences. Before publishing any RePEc files, follow the"
+
+msgid "plugins.generic.repec.settings.repecScopeNoticeLink"
+msgstr "official RePEc step-by-step instructions"
 
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "Archive code officially assigned by RePEc"

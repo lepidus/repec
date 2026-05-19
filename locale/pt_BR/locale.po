@@ -36,7 +36,10 @@ msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Dados necessários para configuração do plugin RePEc"
 
 msgid "plugins.generic.repec.settings.repecScopeNotice"
-msgstr "O RePEc é voltado à literatura de Economia e ciências relacionadas. Antes de publicar qualquer arquivo RePEc, siga as instruções oficiais passo a passo do RePEc:"
+msgstr "O RePEc é voltado à literatura de Economia e ciências relacionadas. Antes de publicar qualquer arquivo RePEc, siga as"
+
+msgid "plugins.generic.repec.settings.repecScopeNoticeLink"
+msgstr "instruções oficiais passo a passo do RePEc"
 
 msgid "plugins.generic.repec.settings.archiveCode"
 msgstr "Código de arquivo atribuído oficialmente pelo RePEc"
