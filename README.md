@@ -10,6 +10,22 @@ Translations:
 - [Español](docs/README.es.md)
 - [Português do Brasil](docs/README.pt_BR.md)
 
+## Before You Start
+
+RePEc is intended for Economics literature and related sciences. Before configuring this plugin, make sure that the journal or institution is eligible for RePEc indexing.
+
+Before publishing any RePEc files, follow the official RePEc step-by-step instructions:
+
+https://ideas.repec.org/stepbystep.html
+
+The step-by-step guide explains how to request an archive code and how to prepare a RePEc archive. For the archive code request step, see also:
+
+https://ideas.repec.org/t/archivehandle.html
+
+Do not invent a RePEc archive code, and do not use a code that belongs to another institution. Every RePEc archive code must be requested from RePEc and assigned to your department or institution to avoid conflicts with archive codes already used by others.
+
+If your institution already has a RePEc archive, you usually do not need a new archive code. A single RePEc archive can include multiple journals or series.
+
 ## Usage
 
 The plugin can be used in two ways:
@@ -22,8 +38,12 @@ These modes can coexist in the same OJS installation. A journal selected for the
 For an individual journal archive:
 
 1. Enable the plugin for a journal.
-2. Open the plugin settings and enter the RePEc archive code, the series code, and the optional maintainer email.
+2. Open the plugin settings and enter the RePEc archive code assigned by RePEc, the series code, and the optional maintainer email.
 3. Access the public URL shown in the plugin settings.
+
+The settings form keeps the required fields separate from advanced options. For most journals, fill in only the RePEc archive code, the series code, and the maintainer email if needed.
+
+If the series code field is empty, use **Generate automatically** to fill it from the journal data, then review it before saving. Once the journal is published in RePEc, avoid changing the archive code, series code, or article handle pattern.
 
 The maintainer email is optional. When it is not filled in, the plugin uses the technical support email configured for the journal in OJS. If that is also empty, it uses the journal's main contact email.
 
@@ -53,6 +73,8 @@ The global archive publishes:
 
 All selected journals are included in the same `{aaa}seri.redif` file, with one `ReDIF-Series 1.0` template per journal. A journal can use either the global archive or an individual journal archive, but not both. Other journals in the same OJS installation can remain outside the global archive and use individual RePEc archives.
 
+If a journal was previously configured with an individual archive code and series code, remove those individual settings from the journal's **Advanced** section before selecting it in the global archive.
+
 ## Legacy RePEc Handles
 
 If a journal already has article handles published by another workflow, import a JSON file in the journal settings to preserve those handles. The JSON must be an object where each key is the OJS `submission_id` and each value is the full legacy RePEc handle:
@@ -65,6 +87,55 @@ If a journal already has article handles published by another workflow, import a
 ```
 
 Legacy handles are configured per journal. They are also applied when the journal is published through a global RePEc archive.
+
+Legacy handles always take precedence over handles generated from the article handle pattern. Use them when specific articles already have public RePEc handles that must be preserved exactly.
+
+## Advanced Options
+
+The **Advanced** section is intended for journals that already have published RePEc records or need to match a specific handle convention. Changes in this section can affect public identifiers, so only use it when you are sure about the expected RePEc handles.
+
+### Article Handle Pattern
+
+The plugin generates article handles as `RePEc:{archiveCode}:{seriesCode}:{suffix}`. By default, the suffix keeps the previous behavior:
+
+```text
+v:%v:y:%Y:i:%i:id:%a
+```
+
+Before publishing the journal's RePEc files, you may configure another suffix in the article handle pattern field. The accepted tokens are:
+
+- `%v`: issue volume
+- `%Y`: publication year
+- `%i`: issue number
+- `%a`: OJS submission ID
+
+For example, this pattern:
+
+```text
+v:%v:y:%Y:i:%i:a:%a
+```
+
+can generate:
+
+```text
+RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960
+```
+
+After the article handle pattern is saved once, the form shows it as read-only. This avoids accidental changes to public identifiers after they have been harvested by RePEc.
+
+### Moving a Journal to the Global Archive
+
+A journal cannot use an individual RePEc configuration and the global archive at the same time. If the journal already has individual `archiveCode` and `seriesCode` settings, it will not be available for selection in the global archive.
+
+To make the journal available in the global archive:
+
+1. Open the plugin settings in the journal context.
+2. Open the **Advanced** section.
+3. Select the option to remove the individual `archiveCode` and `seriesCode` settings.
+4. Save the form.
+5. Open the plugin settings in the site context and select the journal in the global archive.
+
+This only removes the individual archive and series codes. It does not remove legacy handles or the article handle pattern configured for the journal.
 
 ## Credits
 

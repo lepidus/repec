@@ -35,8 +35,17 @@ msgstr "Maintainer"
 msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Data required to configure the RePEc plugin"
 
+msgid "plugins.generic.repec.settings.repecScopeNotice"
+msgstr "RePEc is intended for Economics literature and related sciences. Before publishing any RePEc files, follow the"
+
+msgid "plugins.generic.repec.settings.repecScopeNoticeLink"
+msgstr "official RePEc step-by-step instructions"
+
 msgid "plugins.generic.repec.settings.archiveCode"
-msgstr "3-letter code provided by RePEc"
+msgstr "Archive code officially assigned by RePEc"
+
+msgid "plugins.generic.repec.settings.archiveCodeDescription"
+msgstr "Do not invent this code, and do not use a code that belongs to another institution. Request the archive code from RePEc before configuring the plugin."
 
 msgid "plugins.generic.repec.settings.archiveName"
 msgstr "Archive name"
@@ -48,7 +57,10 @@ msgid "plugins.generic.repec.settings.seriesCode"
 msgstr "6-character code for the series (journal)"
 
 msgid "plugins.generic.repec.settings.seriesCodeDescription"
-msgstr "Suggested automatically from the journal data. You may change it before saving. After it is published in RePEc, avoid changing this code."
+msgstr "You may fill this manually or use the automatic suggestion. After it is published in RePEc, avoid changing this code."
+
+msgid "plugins.generic.repec.settings.generateSeriesCode"
+msgstr "Generate automatically"
 
 msgid "plugins.generic.repec.settings.seriesName"
 msgstr "Series or journal name"
@@ -124,6 +136,42 @@ msgstr "Select at least one journal and enter a unique 6-character series code f
 
 msgid "plugins.generic.repec.settings.managedByGlobalArchive"
 msgstr "This journal is configured in the global RePEc archive {$archiveCode}. Individual RePEc settings are disabled for this journal."
+
+msgid "plugins.generic.repec.settings.advanced"
+msgstr "Advanced"
+
+msgid "plugins.generic.repec.settings.advancedWarningLabel"
+msgstr "Careful:"
+
+msgid "plugins.generic.repec.settings.advancedWarning"
+msgstr "changes in this area are risky and must be made with extra care. Do not change anything unless you are certain."
+
+msgid "plugins.generic.repec.settings.articleHandlePattern"
+msgstr "Article handle pattern"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternDescription"
+msgstr "Optional. Enter only the handle suffix, without RePEc, archive code, or series code. Accepted tokens: %v for volume, %Y for year, %i for issue number, and %a for submission ID. The %a token is required to keep article handles unique."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternLockedDescription"
+msgstr "This pattern has already been saved and cannot be changed in the form."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternPreview"
+msgstr "Handle preview"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternWarning"
+msgstr "Published handles should not change. Configure this pattern before publishing the journal's RePEc files."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternConfirm"
+msgstr "This pattern will be used to generate public article handles and cannot be changed in the form after it is saved. Preview: __PREVIEW__. Do you want to save this pattern?"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternInvalid"
+msgstr "Enter only the handle suffix, without RePEc, using valid characters and the tokens %v, %Y, %i, and %a. The %a token is required."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettings"
+msgstr "Remove individual \"archiveCode\" and \"seriesCode\" settings so the journal can be made available through the site's global configuration."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettingsConfirm"
+msgstr "This will remove the individual archiveCode and seriesCode settings from this journal. After that, the journal can be selected in the site's global configuration. Do you want to continue?"
 
 msgid "plugins.generic.repec.settings.legacyHandles"
 msgstr "Legacy RePEc handles"

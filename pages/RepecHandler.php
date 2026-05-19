@@ -25,6 +25,8 @@ use PKP\plugins\PluginRegistry;
 
 class RepecHandler extends Handler
 {
+    private const DEFAULT_ARTICLE_HANDLE_PATTERN = 'v:%v:y:%Y:i:%i:id:%a';
+
     public function index($args, $request)
     {
         $plugin = PluginRegistry::getPlugin('generic', 'repecplugin');
@@ -382,25 +384,42 @@ class RepecHandler extends Handler
             return $settings['legacyHandles'][$submission->getId()];
         }
 
-        $parts = array('RePEc', $settings['archiveCode'], $settings['seriesCode']);
-
-        if ($issue && $issue->getVolume()) {
-            $parts[] = 'v';
-            $parts[] = $this->cleanHandlePart($issue->getVolume());
-        }
-        if ($year) {
-            $parts[] = 'y';
-            $parts[] = $this->cleanHandlePart($year);
-        }
-        if ($issue && $issue->getNumber()) {
-            $parts[] = 'i';
-            $parts[] = $this->cleanHandlePart($issue->getNumber());
+        $pattern = trim((string) (isset($settings['articleHandlePattern']) ? $settings['articleHandlePattern'] : ''));
+        if ($pattern === '') {
+            $pattern = self::DEFAULT_ARTICLE_HANDLE_PATTERN;
         }
 
-        $parts[] = 'id';
-        $parts[] = $submission->getId();
+        $tokens = array(
+            '%v' => $issue ? $this->cleanHandlePart($issue->getVolume()) : '',
+            '%Y' => $this->cleanHandlePart($year),
+            '%i' => $issue ? $this->cleanHandlePart($issue->getNumber()) : '',
+            '%a' => $submission->getId(),
+        );
+        $suffix = $this->resolveArticleHandlePattern($pattern, $tokens);
 
-        return implode(':', array_filter($parts, 'strlen'));
+        return implode(':', array_filter(array(
+            'RePEc',
+            $settings['archiveCode'],
+            $settings['seriesCode'],
+            $suffix,
+        ), 'strlen'));
+    }
+
+    private function resolveArticleHandlePattern($pattern, $tokens)
+    {
+        $parts = array();
+        foreach (explode(':', $pattern) as $part) {
+            if (isset($tokens[$part]) && $tokens[$part] === '') {
+                array_pop($parts);
+                continue;
+            }
+            $resolvedPart = strtr($part, $tokens);
+            if ($resolvedPart !== '') {
+                $parts[] = $resolvedPart;
+            }
+        }
+
+        return implode(':', $parts);
     }
 
     private function decodeGlobalJournals($value)

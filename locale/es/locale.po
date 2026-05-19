@@ -35,8 +35,17 @@ msgstr "Mantenedor"
 msgid "plugins.generic.repec.settings.requiredData"
 msgstr "Datos necesarios para configurar el plugin RePEc"
 
+msgid "plugins.generic.repec.settings.repecScopeNotice"
+msgstr "RePEc está destinado a la literatura de Economía y ciencias relacionadas. Antes de publicar cualquier archivo RePEc, siga las"
+
+msgid "plugins.generic.repec.settings.repecScopeNoticeLink"
+msgstr "instrucciones oficiales paso a paso de RePEc"
+
 msgid "plugins.generic.repec.settings.archiveCode"
-msgstr "Código de 3 letras proporcionado por RePEc"
+msgstr "Código de archivo asignado oficialmente por RePEc"
+
+msgid "plugins.generic.repec.settings.archiveCodeDescription"
+msgstr "No invente este código ni use un código perteneciente a otra institución. Solicite el código de archivo a RePEc antes de configurar el plugin."
 
 msgid "plugins.generic.repec.settings.archiveName"
 msgstr "Nombre del archivo"
@@ -48,7 +57,10 @@ msgid "plugins.generic.repec.settings.seriesCode"
 msgstr "Código de 6 caracteres para la serie (revista)"
 
 msgid "plugins.generic.repec.settings.seriesCodeDescription"
-msgstr "Sugerencia generada automáticamente a partir de los datos de la revista. Puede cambiarla antes de guardar. Después de publicarla en RePEc, evite cambiar este código."
+msgstr "Puede completarlo manualmente o usar la sugerencia automática. Después de publicarlo en RePEc, evite cambiar este código."
+
+msgid "plugins.generic.repec.settings.generateSeriesCode"
+msgstr "Generar automáticamente"
 
 msgid "plugins.generic.repec.settings.seriesName"
 msgstr "Nombre de la serie o revista"
@@ -124,6 +136,42 @@ msgstr "Seleccione al menos una revista e informe un código de serie único de 
 
 msgid "plugins.generic.repec.settings.managedByGlobalArchive"
 msgstr "Esta revista está configurada en el archivo RePEc global {$archiveCode}. La configuración RePEc individual está deshabilitada para esta revista."
+
+msgid "plugins.generic.repec.settings.advanced"
+msgstr "Avanzado"
+
+msgid "plugins.generic.repec.settings.advancedWarningLabel"
+msgstr "Cuidado:"
+
+msgid "plugins.generic.repec.settings.advancedWarning"
+msgstr "los cambios en esta área son riesgosos y deben hacerse con cuidado redoblado. No cambie nada si no tiene certeza."
+
+msgid "plugins.generic.repec.settings.articleHandlePattern"
+msgstr "Patrón del handle de los artículos"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternDescription"
+msgstr "Opcional. Informe solo el sufijo del handle, sin RePEc, código del archivo ni código de la serie. Tokens aceptados: %v para volumen, %Y para año, %i para número de edición y %a para ID del envío. El token %a es obligatorio para mantener handles únicos por artículo."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternLockedDescription"
+msgstr "Este patrón ya fue guardado y no se puede cambiar en el formulario."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternPreview"
+msgstr "Vista previa del handle"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternWarning"
+msgstr "Los handles ya publicados no deben cambiar. Configure este patrón antes de publicar los archivos RePEc de la revista."
+
+msgid "plugins.generic.repec.settings.articleHandlePatternConfirm"
+msgstr "Este patrón se usará para generar handles públicos de artículos y no se podrá cambiar en el formulario después de guardarlo. Vista previa: __PREVIEW__. ¿Desea guardar este patrón?"
+
+msgid "plugins.generic.repec.settings.articleHandlePatternInvalid"
+msgstr "Informe solo el sufijo del handle, sin RePEc, usando caracteres válidos y los tokens %v, %Y, %i y %a. El token %a es obligatorio."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettings"
+msgstr "Eliminar configuraciones individuales \"archiveCode\" y \"seriesCode\" para que la revista pueda estar disponible mediante la configuración global del sitio."
+
+msgid "plugins.generic.repec.settings.removeIndividualSettingsConfirm"
+msgstr "Esto eliminará las configuraciones individuales archiveCode y seriesCode de esta revista. Después de eso, la revista podrá seleccionarse en la configuración global del sitio. ¿Desea continuar?"
 
 msgid "plugins.generic.repec.settings.legacyHandles"
 msgstr "Handles RePEc heredados"
