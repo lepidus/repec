@@ -20,6 +20,22 @@ Use o ramo e o pacote do plugin correspondentes à versão do OJS:
 
 O ramo `main` atualmente acompanha a linha compatível com OJS 3.5. Em instalações de produção, prefira o ramo estável e a tag de release correspondentes à versão do OJS alvo.
 
+## Antes de começar
+
+O RePEc é voltado à literatura de Economia e ciências relacionadas. Antes de configurar este plugin, confirme que a revista ou instituição é adequada para indexação no RePEc.
+
+Antes de publicar qualquer arquivo RePEc, siga as instruções oficiais passo a passo do RePEc:
+
+https://ideas.repec.org/stepbystep.html
+
+O guia passo a passo explica como solicitar um código de arquivo e como preparar um arquivo RePEc. Para a etapa específica de solicitação do código de arquivo, veja também:
+
+https://ideas.repec.org/t/archivehandle.html
+
+Não invente um código de arquivo RePEc nem use um código pertencente a outra instituição. Todo código de arquivo RePEc deve ser solicitado ao RePEc e atribuído ao seu departamento ou instituição para evitar conflitos com códigos já usados por terceiros.
+
+Se a sua instituição já tem um arquivo RePEc, normalmente não é necessário solicitar um novo código de arquivo. Um único arquivo RePEc pode incluir várias revistas ou séries.
+
 ## Uso
 
 O plugin pode ser usado de duas formas:
@@ -32,7 +48,7 @@ Esses modos podem coexistir na mesma instalação OJS. Uma revista selecionada p
 Para um arquivo individual de revista:
 
 1. Habilite o plugin em uma revista.
-2. Abra as configurações do plugin e informe o código RePEc do arquivo, o código da série e o e-mail opcional do mantenedor.
+2. Abra as configurações do plugin e informe o código de arquivo atribuído pelo RePEc, o código da série e o e-mail opcional do mantenedor.
 3. Acesse a URL pública indicada na configuração do plugin.
 
 O e-mail do mantenedor é opcional no formulário. Quando não for preenchido, o plugin usa o e-mail de suporte técnico configurado na revista no OJS e, se ele também estiver vazio, usa o e-mail de contato principal da revista.
