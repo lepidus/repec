@@ -26,22 +26,6 @@ Do not invent a RePEc archive code, and do not use a code that belongs to anothe
 
 If your institution already has a RePEc archive, you usually do not need a new archive code. A single RePEc archive can include multiple journals or series.
 
-## Before You Start
-
-RePEc is intended for Economics literature and related sciences. Before configuring this plugin, make sure that the journal or institution is eligible for RePEc indexing.
-
-Before publishing any RePEc files, follow the official RePEc step-by-step instructions:
-
-https://ideas.repec.org/stepbystep.html
-
-The step-by-step guide explains how to request an archive code and how to prepare a RePEc archive. For the archive code request step, see also:
-
-https://ideas.repec.org/t/archivehandle.html
-
-Do not invent a RePEc archive code, and do not use a code that belongs to another institution. Every RePEc archive code must be requested from RePEc and assigned to your department or institution to avoid conflicts with archive codes already used by others.
-
-If your institution already has a RePEc archive, you usually do not need a new archive code. A single RePEc archive can include multiple journals or series.
-
 ## Usage
 
 The plugin can be used in two ways:

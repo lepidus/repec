@@ -26,22 +26,6 @@ No invente un código de archivo RePEc ni use un código perteneciente a otra in
 
 Si su institución ya tiene un archivo RePEc, normalmente no es necesario solicitar un nuevo código de archivo. Un único archivo RePEc puede incluir varias revistas o series.
 
-## Antes de empezar
-
-RePEc está destinado a la literatura de Economía y ciencias relacionadas. Antes de configurar este plugin, confirme que la revista o institución es adecuada para la indexación en RePEc.
-
-Antes de publicar cualquier archivo RePEc, siga las instrucciones oficiales paso a paso de RePEc:
-
-https://ideas.repec.org/stepbystep.html
-
-La guía paso a paso explica cómo solicitar un código de archivo y cómo preparar un archivo RePEc. Para la etapa específica de solicitud del código de archivo, vea también:
-
-https://ideas.repec.org/t/archivehandle.html
-
-No invente un código de archivo RePEc ni use un código perteneciente a otra institución. Todo código de archivo RePEc debe solicitarse a RePEc y ser asignado a su departamento o institución para evitar conflictos con códigos ya usados por terceros.
-
-Si su institución ya tiene un archivo RePEc, normalmente no es necesario solicitar un nuevo código de archivo. Un único archivo RePEc puede incluir varias revistas o series.
-
 ## Uso
 
 El plugin puede usarse de dos formas:
