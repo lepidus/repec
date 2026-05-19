@@ -313,10 +313,43 @@ class RepecFormatterTest extends PKPTestCase
         $handle = $method->invoke($handler, array(
             'archiveCode' => 'abc',
             'seriesCode' => 'journ1',
+            'articleHandlePattern' => '',
             'legacyHandles' => array(),
         ), $submission, $issue, '2026');
 
         $this->assertSame('RePEc:abc:journ1:v:42:y:2026:i:2:id:123', $handle);
+    }
+
+    public function testArticleHandleUsesCustomPatternWhenConfigured()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'fgv',
+            'seriesCode' => 'eaerae',
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+            'legacyHandles' => array(),
+        ), $this->getSubmissionStub(59960), $this->getIssueStub('35', '3'), '1995');
+
+        $this->assertSame('RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960', $handle);
+    }
+
+    public function testArticleHandlePatternKeepsLegacyHandlePriority()
+    {
+        $handler = new RepecHandler();
+        $method = new ReflectionMethod($handler, 'getArticleHandle');
+        $method->setAccessible(true);
+
+        $handle = $method->invoke($handler, array(
+            'archiveCode' => 'fgv',
+            'seriesCode' => 'eaerae',
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+            'legacyHandles' => array('59960' => 'RePEc:fgv:eaerae:a:legacy59960'),
+        ), $this->getSubmissionStub(59960), $this->getIssueStub('35', '3'), '1995');
+
+        $this->assertSame('RePEc:fgv:eaerae:a:legacy59960', $handle);
     }
 
     public function testArticleHandleIgnoresEmptyIssueMetadata()
@@ -334,6 +367,7 @@ class RepecFormatterTest extends PKPTestCase
         $handle = $method->invoke($handler, array(
             'archiveCode' => 'abc',
             'seriesCode' => 'journ1',
+            'articleHandlePattern' => '',
             'legacyHandles' => array(),
         ), $submission, null, '');
 
@@ -409,12 +443,163 @@ class RepecFormatterTest extends PKPTestCase
         $this->assertSame('abc000', $method->invoke($form, $this->getContextStub('abc', '', '', 'Journal Example')));
     }
 
-    public function testSettingsTemplateUsesOjs34ComponentRoute()
+    public function testInitDataDoesNotAutofillNewSeriesCode()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $form->initData();
+
+        $this->assertSame('', $form->getData('seriesCode'));
+    }
+
+    public function testSeriesCodeSuggestionIsStillCalculated()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $method = new ReflectionMethod($form, 'generateSeriesCodeForContext');
+        $method->setAccessible(true);
+
+        $code = $method->invoke($form, $this->getContextStub('Revista de Economia Aplicada', '', '', 'Revista Exemplo'));
+
+        $this->assertSame('revist', $code);
+    }
+
+    public function testSavedArticleHandlePatternCannotBeChangedByFormStorage()
+    {
+        $form = $this->getSettingsFormStub(array(
+            'articleHandlePattern' => 'v:%v:y:%Y:i:%i:a:%a',
+        ));
+        $method = new ReflectionMethod($form, 'getArticleHandlePatternValueForStorage');
+        $method->setAccessible(true);
+
+        $value = $method->invoke($form, 'id:%a');
+
+        $this->assertSame('v:%v:y:%Y:i:%i:a:%a', $value);
+    }
+
+    public function testArticleHandlePatternValidationRejectsFullRepecHandle()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $this->assertTrue($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i:a:%a'));
+        $this->assertFalse($form->validateArticleHandlePattern('RePEc:fgv:eaerae:v:%v:y:%Y:i:%i:a:%a'));
+    }
+
+    public function testArticleHandlePatternValidationRequiresSubmissionToken()
+    {
+        $form = $this->getSettingsFormStub(array());
+
+        $this->assertTrue($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i:a:%a'));
+        $this->assertFalse($form->validateArticleHandlePattern('v:%v:y:%Y:i:%i'));
+    }
+
+    public function testArticleHandlePatternPreviewUsesGlobalArchiveCodes()
+    {
+        $form = $this->getSettingsFormStub(array(
+            'archiveCode' => 'fgv',
+            'globalJournals' => '{"1":"eaerae"}',
+        ));
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', '');
+
+        $archiveCodeMethod = new ReflectionMethod($form, 'getArticleHandlePatternPreviewArchiveCode');
+        $archiveCodeMethod->setAccessible(true);
+        $seriesCodeMethod = new ReflectionMethod($form, 'getArticleHandlePatternPreviewSeriesCode');
+        $seriesCodeMethod->setAccessible(true);
+        $previewMethod = new ReflectionMethod($form, 'buildArticleHandlePatternPreview');
+        $previewMethod->setAccessible(true);
+
+        $preview = $previewMethod->invoke(
+            $form,
+            $archiveCodeMethod->invoke($form),
+            $seriesCodeMethod->invoke($form),
+            'v:%v:y:%Y:i:%i:a:%a'
+        );
+
+        $this->assertSame('RePEc:fgv:eaerae:v:35:y:1995:i:3:a:59960', $preview);
+    }
+
+    public function testRemoveIndividualSettingsClearsArchiveAndSeriesCodesOnly()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $form->setData('removeIndividualRepecSettings', '1');
+        $form->setData('archiveCode', 'ABC');
+        $form->setData('seriesCode', 'JOURN1');
+        $form->setData('maintainerEmail', 'repec@example.org');
+
+        $method = new ReflectionMethod($form, 'getSettingValueForStorage');
+        $method->setAccessible(true);
+
+        $this->assertSame('', $method->invoke($form, 'archiveCode'));
+        $this->assertSame('', $method->invoke($form, 'seriesCode'));
+        $this->assertSame('repec@example.org', $method->invoke($form, 'maintainerEmail'));
+    }
+
+    public function testRemoveIndividualSettingsStillSavesMaintainerEmail()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $form->setData('removeIndividualRepecSettings', '1');
+        $form->setData('archiveCode', 'ABC');
+        $form->setData('seriesCode', 'JOURN1');
+        $form->setData('maintainerEmail', 'updated@example.org');
+        $form->setData('articleHandlePattern', 'v:%v:y:%Y:i:%i:id:%a');
+        $form->setData('legacyHandles', '{}');
+
+        $form->execute();
+
+        $this->assertSame('', $form->plugin->updatedSettings['archiveCode']['value']);
+        $this->assertSame('', $form->plugin->updatedSettings['seriesCode']['value']);
+        $this->assertSame('updated@example.org', $form->plugin->updatedSettings['maintainerEmail']['value']);
+    }
+
+    public function testRemoveIndividualSettingsOptionOnlyEnabledWhenThereAreCodesToRemove()
+    {
+        $form = $this->getSettingsFormStub(array());
+        $method = new ReflectionMethod($form, 'hasIndividualRepecSettingsToRemove');
+        $method->setAccessible(true);
+
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', '');
+        $this->assertFalse($method->invoke($form));
+
+        $form->setData('archiveCode', 'abc');
+        $this->assertTrue($method->invoke($form));
+
+        $form->setData('archiveCode', '');
+        $form->setData('seriesCode', 'journ1');
+        $this->assertTrue($method->invoke($form));
+    }
+
+    public function testSettingsTemplateUsesComponentRoute()
     {
         $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
 
         $this->assertStringContainsString('router=\PKP\core\PKPApplication::ROUTE_COMPONENT', $template);
         $this->assertStringNotContainsString('router=$smarty.const.ROUTE_COMPONENT', $template);
+    }
+
+    public function testSettingsTemplateSerializesTranslatedJavascriptStringsAsJson()
+    {
+        $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
+
+        $this->assertStringNotContainsString("'{translate", $template);
+        $this->assertStringNotContainsString('"{translate', $template);
+        $this->assertStringContainsString(
+            '{translate|json_encode key="plugins.generic.repec.settings.articleHandlePatternConfirm"}',
+            $template
+        );
+        $this->assertStringContainsString(
+            '{translate|json_encode key="plugins.generic.repec.settings.removeIndividualSettingsConfirm"}',
+            $template
+        );
+    }
+
+    public function testSeriesCodeGeneratorTargetsInputsByName()
+    {
+        $template = file_get_contents(dirname(__DIR__) . '/templates/settingsForm.tpl');
+
+        $this->assertStringContainsString("data-target-name=\"seriesCode\"", $template);
+        $this->assertStringContainsString('data-target-name="globalSeriesCodes[{$journal.id|escape}]"', $template);
+        $this->assertStringNotContainsString('data-target="seriesCode"', $template);
     }
 
     public function testPluginDoesNotRequireRemovedLocaleComponentConstants()
@@ -428,6 +613,79 @@ class RepecFormatterTest extends PKPTestCase
     private function getSettingsFormWithoutConstructor()
     {
         return (new ReflectionClass(RepecSettingsForm::class))->newInstanceWithoutConstructor();
+    }
+
+    private function getSettingsFormStub($settings)
+    {
+        $reflection = new ReflectionClass(RepecSettingsForm::class);
+        $form = $reflection->newInstanceWithoutConstructor();
+        $form->plugin = new class ($settings) {
+            private $settings;
+            public $updatedSettings = array();
+
+            public function __construct($settings)
+            {
+                $this->settings = $settings;
+            }
+
+            public function getSetting($contextId, $name)
+            {
+                return isset($this->settings[$name]) ? $this->settings[$name] : '';
+            }
+
+            public function updateSetting($contextId, $name, $value, $type)
+            {
+                $this->updatedSettings[$name] = array(
+                    'contextId' => $contextId,
+                    'value' => $value,
+                    'type' => $type,
+                );
+            }
+        };
+        $form->contextId = 1;
+
+        return $form;
+    }
+
+    private function getSubmissionStub($id)
+    {
+        return new class ($id) {
+            private $id;
+
+            public function __construct($id)
+            {
+                $this->id = $id;
+            }
+
+            public function getId()
+            {
+                return $this->id;
+            }
+        };
+    }
+
+    private function getIssueStub($volume, $number)
+    {
+        return new class ($volume, $number) {
+            private $volume;
+            private $number;
+
+            public function __construct($volume, $number)
+            {
+                $this->volume = $volume;
+                $this->number = $number;
+            }
+
+            public function getVolume()
+            {
+                return $this->volume;
+            }
+
+            public function getNumber()
+            {
+                return $this->number;
+            }
+        };
     }
 
     private function getContextStub($path, $onlineIssn, $printIssn, $name)
