@@ -13,6 +13,11 @@ use APP\submission\Submission;
 use PKP\config\Config;
 use PKP\db\DAORegistry;
 
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit;
+}
+
 $ojsRoot = realpath(__DIR__ . '/../../../..');
 if (!$ojsRoot || !file_exists($ojsRoot . '/tools/bootstrap.inc.php')) {
     fwrite(STDERR, "Could not locate OJS root from this plugin path.\n");
