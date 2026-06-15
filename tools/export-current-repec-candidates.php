@@ -8,6 +8,11 @@
  * php plugins/generic/repec/tools/export-current-repec-candidates.php --context-id=1 > current-articles.tsv
  */
 
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit;
+}
+
 $ojsRoot = realpath(__DIR__ . '/../../../..');
 if (!$ojsRoot || !file_exists($ojsRoot . '/tools/bootstrap.inc.php')) {
     fwrite(STDERR, "Could not locate OJS root from this plugin path.\n");
